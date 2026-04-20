@@ -75,7 +75,8 @@ export async function signInAction(formData: FormData) {
 
   if (!isAllowedAdminEmail(data.user.email)) {
     await supabase.auth.signOut();
-    redirect("/admin/login?error=unauthorized");
+    const unauthorizedEmail = encodeURIComponent(data.user.email ?? email);
+    redirect(`/admin/login?error=unauthorized&email=${unauthorizedEmail}`);
   }
 
   redirect(next.startsWith("/admin") ? next : "/admin");

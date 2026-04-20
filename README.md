@@ -80,7 +80,7 @@ cp .env.example .env.local
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-ADMIN_EMAILS=owner@coffeeine.com,manager@coffeeine.com
+ADMIN_EMAILS=admin@coffeeine-menu.com
 ```
 
 4. Run the app.
@@ -109,6 +109,7 @@ The public menu will still render with demo data before Supabase is connected, b
 Notes:
 
 - The UI restricts admin access using `ADMIN_EMAILS`.
+- If the user exists in Supabase Auth and the password is correct but login still fails, the most common cause is that the deployed Vercel project does not have the same `ADMIN_EMAILS` value yet, or it has not been redeployed after the env update.
 - The included SQL policies allow any authenticated user to write by default.
 - For stricter database-level security, replace the authenticated RLS policies with a custom claim or role-based check in Supabase.
 
@@ -121,6 +122,12 @@ Notes:
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `ADMIN_EMAILS`
 4. Deploy.
+
+Example:
+
+```env
+ADMIN_EMAILS=admin@coffeeine-menu.com
+```
 
 Vercel will automatically detect Next.js and use the correct build settings.
 

@@ -17,6 +17,7 @@ export default async function AdminLoginPage({
   const params = await searchParams;
   const next = typeof params.next === "string" ? params.next : "/admin";
   const error = typeof params.error === "string" ? params.error : "";
+  const unauthorizedEmail = typeof params.email === "string" ? params.email : "";
 
   if (isSupabaseConfigured()) {
     const supabase = await createServerSupabaseClient();
@@ -61,7 +62,8 @@ export default async function AdminLoginPage({
                 <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {error === "config" && "Add your Supabase environment variables first."}
                   {error === "invalid-credentials" && "Email or password was incorrect."}
-                  {error === "unauthorized" && "This account is not allowed to access admin."}
+                  {error === "unauthorized" &&
+                    `This account (${unauthorizedEmail || "current email"}) is valid in Supabase Auth but is not listed in ADMIN_EMAILS. Add it to your local or Vercel environment variables and redeploy if needed.`}
                 </div>
               ) : null}
 
@@ -69,7 +71,14 @@ export default async function AdminLoginPage({
                 <input type="hidden" name="next" value={next} />
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" required placeholder="owner@coffeeine.com" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="admin@coffeeine-menu.com"
+                    defaultValue={unauthorizedEmail}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
