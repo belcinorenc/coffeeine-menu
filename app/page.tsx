@@ -3,10 +3,10 @@ import { CategoryNav } from "@/components/menu/category-nav";
 import { CategorySection } from "@/components/menu/category-section";
 import { Hero } from "@/components/menu/hero";
 import { EmptyState } from "@/components/shared/empty-state";
-import { getPublicMenuData, PUBLIC_MENU_REVALIDATE_SECONDS } from "@/lib/data";
+import { getPublicMenuData } from "@/lib/data";
 
 export const dynamic = "force-static";
-export const revalidate = PUBLIC_MENU_REVALIDATE_SECONDS;
+export const revalidate = 60;
 
 export default async function HomePage() {
   const { settings, categories } = await getPublicMenuData();
