@@ -1,12 +1,17 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { isAllowedAdminEmail, isSupabaseConfigured } from "@/lib/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { toSlug } from "@/lib/utils";
+
+function refreshPublicMenuCache() {
+  revalidateTag("public-menu");
+  revalidatePath("/");
+}
 
 const categorySchema = z.object({
   name: z.string().min(2),
@@ -96,7 +101,7 @@ export async function createCategoryAction(formData: FormData) {
   });
 
   await supabase.from("categories").insert(payload);
-  revalidatePath("/");
+  refreshPublicMenuCache();
   revalidatePath("/admin");
   revalidatePath("/admin/categories");
 }
@@ -113,7 +118,7 @@ export async function updateCategoryAction(formData: FormData) {
   });
 
   await supabase.from("categories").update(payload).eq("id", id);
-  revalidatePath("/");
+  refreshPublicMenuCache();
   revalidatePath("/admin/categories");
 }
 
@@ -122,7 +127,7 @@ export async function deleteCategoryAction(formData: FormData) {
   const id = String(formData.get("id"));
 
   await supabase.from("categories").delete().eq("id", id);
-  revalidatePath("/");
+  refreshPublicMenuCache();
   revalidatePath("/admin/categories");
   revalidatePath("/admin/products");
 }
@@ -156,7 +161,7 @@ export async function moveCategoryAction(formData: FormData) {
     supabase.from("categories").update({ sort_order: current.sort_order }).eq("id", target.id)
   ]);
 
-  revalidatePath("/");
+  refreshPublicMenuCache();
   revalidatePath("/admin/categories");
 }
 
@@ -181,7 +186,7 @@ export async function createProductAction(formData: FormData) {
     image_url: payload.image_url || null,
     badge: payload.badge || null
   });
-  revalidatePath("/");
+  refreshPublicMenuCache();
   revalidatePath("/admin");
   revalidatePath("/admin/products");
 }
@@ -212,7 +217,7 @@ export async function updateProductAction(formData: FormData) {
     })
     .eq("id", id);
 
-  revalidatePath("/");
+  refreshPublicMenuCache();
   revalidatePath("/admin/products");
 }
 
@@ -221,7 +226,7 @@ export async function deleteProductAction(formData: FormData) {
   const id = String(formData.get("id"));
 
   await supabase.from("products").delete().eq("id", id);
-  revalidatePath("/");
+  refreshPublicMenuCache();
   revalidatePath("/admin/products");
 }
 
@@ -256,7 +261,7 @@ export async function moveProductAction(formData: FormData) {
     supabase.from("products").update({ sort_order: current.sort_order }).eq("id", target.id)
   ]);
 
-  revalidatePath("/");
+  refreshPublicMenuCache();
   revalidatePath("/admin/products");
 }
 
@@ -284,7 +289,7 @@ export async function updateSettingsAction(formData: FormData) {
     { onConflict: "id" }
   );
 
-  revalidatePath("/");
+  refreshPublicMenuCache();
   revalidatePath("/admin");
   revalidatePath("/admin/settings");
 }
