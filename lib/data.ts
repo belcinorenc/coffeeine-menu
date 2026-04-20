@@ -77,8 +77,7 @@ export async function getCategories(): Promise<Category[]> {
   noStore();
 
   if (!isSupabaseConfigured()) {
-    return demoMenuData.categories.map(({ products: _products, ...category }) => category);
-  }
+return demoMenuData.categories.map(({ products, ...category }) => category);  }
 
   const supabase = await requireSupabase();
   const { data } = await supabase
