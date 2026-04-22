@@ -10,7 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { getSettings } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/env";
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const isSaved = params.saved === "1";
   const settings = await getSettings();
 
   return (
@@ -24,6 +30,12 @@ export default async function SettingsPage() {
       </div>
 
       {!isSupabaseConfigured() ? <SetupNotice /> : null}
+
+      {isSaved ? (
+        <div className="rounded-[24px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800 shadow-sm">
+          Kaydedildi. Değişiklikler menüde kısa süre içinde görünecek.
+        </div>
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -52,7 +64,12 @@ export default async function SettingsPage() {
               <Textarea id="address" name="address" defaultValue={settings.address ?? ""} />
             </div>
             <div className="lg:col-span-2 flex justify-end">
-              <Button type="submit">Ayarları kaydet</Button>
+              <Button
+                type="submit"
+                className="shadow-sm transition hover:-translate-y-0.5 hover:bg-coffee-900 hover:shadow-glow active:translate-y-0"
+              >
+                Ayarları kaydet
+              </Button>
             </div>
           </form>
         </CardContent>

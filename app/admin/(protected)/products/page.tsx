@@ -4,6 +4,7 @@ import {
   moveProductAction,
   updateProductAction
 } from "@/app/admin/actions";
+import { ChevronDown } from "lucide-react";
 import { ConfirmActionForm } from "@/components/admin/confirm-action-form";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { SetupNotice } from "@/components/admin/setup-notice";
@@ -65,16 +66,11 @@ export default async function ProductsPage({
   return (
     <div className="space-y-6">
       <Card className="overflow-hidden">
-        <CardContent className="grid gap-5 p-5 lg:grid-cols-[280px_1fr] lg:items-end">
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-coffee-800 font-serif text-2xl text-white">
-              C
-            </div>
-            <div>
+        <CardContent className="grid gap-5 p-5 lg:grid-cols-[240px_1fr] lg:items-end">
+          <div>
               <Badge variant="secondary">Ürün yönetimi</Badge>
               <h1 className="mt-2 font-serif text-3xl text-coffee-900">Ürünler</h1>
               <p className="text-sm text-muted-foreground">{filteredProducts.length} ürün gösteriliyor</p>
-            </div>
           </div>
 
           <form className="grid gap-3 md:grid-cols-[1fr_220px_auto]">
@@ -153,8 +149,8 @@ export default async function ProductsPage({
       ) : (
         <div className="space-y-6">
           {productGroups.map((group) => (
-            <section key={group.category?.id ?? "uncategorized"} className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-coffee-200 bg-white/70 px-5 py-4 shadow-sm">
+            <details key={group.category?.id ?? "uncategorized"} className="group rounded-[28px] border border-coffee-200 bg-white/70 shadow-sm">
+              <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 px-5 py-4 transition hover:bg-coffee-50/70">
                 <div>
                   <h2 className="font-serif text-2xl text-coffee-900">
                     {group.category?.name ?? "Kategorisiz"}
@@ -163,15 +159,18 @@ export default async function ProductsPage({
                     {group.products.length} ürün
                   </p>
                 </div>
-                <Badge variant="secondary">Menü sırasına göre</Badge>
-              </div>
+                <span className="flex items-center gap-3">
+                  <Badge variant="secondary">Menü sırasına göre</Badge>
+                  <ChevronDown className="h-5 w-5 text-coffee-700 transition group-open:rotate-180" />
+                </span>
+              </summary>
 
-              <div className="grid gap-4">
+              <div className="grid gap-4 border-t border-coffee-100 p-4">
                 {group.products.map((product) => (
                   <ProductEditor key={product.id} product={product} categories={categories} />
                 ))}
               </div>
-            </section>
+            </details>
           ))}
         </div>
       )}

@@ -1,6 +1,6 @@
+import Image from "next/image";
 import { Instagram, MapPin, Phone } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import type { Settings } from "@/lib/types";
 
 interface HeroProps {
@@ -14,9 +14,16 @@ export function Hero({ settings }: HeroProps) {
 
       <div className="relative flex flex-col gap-6">
         <div className="flex items-center justify-between gap-3">
-          <Badge variant="secondary" className="bg-white/75 text-coffee-800">
-            Coffeeine QR Menu
-          </Badge>
+          <div className="flex items-center gap-2 rounded-full bg-white/75 px-2 py-1 pr-4 text-sm font-medium text-coffee-800">
+            <span className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-coffee-800 font-serif text-white">
+              {settings.logo_url ? (
+                <Image src={settings.logo_url} alt={settings.cafe_name} fill className="object-cover" sizes="32px" />
+              ) : (
+                settings.cafe_name.slice(0, 1)
+              )}
+            </span>
+            {settings.cafe_name} QR Menu
+          </div>
           <p className="text-xs uppercase tracking-[0.28em] text-coffee-700/80">
             Scan. Sip. Stay.
           </p>

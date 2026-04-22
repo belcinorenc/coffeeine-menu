@@ -380,4 +380,5 @@ export async function updateSettingsAction(formData: FormData) {
   refreshPublicMenuCache();
   revalidatePath("/admin");
   revalidatePath("/admin/settings");
+  redirect("/admin/settings?saved=1");
 }
