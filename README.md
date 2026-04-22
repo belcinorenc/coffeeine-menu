@@ -80,7 +80,7 @@ cp .env.example .env.local
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-ADMIN_EMAILS=admin@coffeeine-menu.com
+ADMIN_EMAILS=owner@coffeeine.com,manager@coffeeine.com,admin@coffeeine-menu.com,belcinorencc@gmail.com
 ```
 
 4. Run the app.
@@ -126,7 +126,7 @@ Notes:
 Example:
 
 ```env
-ADMIN_EMAILS=admin@coffeeine-menu.com
+ADMIN_EMAILS=owner@coffeeine.com,manager@coffeeine.com,admin@coffeeine-menu.com,belcinorencc@gmail.com
 ```
 
 Vercel will automatically detect Next.js and use the correct build settings.
