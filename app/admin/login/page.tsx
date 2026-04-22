@@ -1,8 +1,11 @@
 import { redirect } from "next/navigation";
 
-import { LoginForm } from "@/components/admin/login-form";
+import { signInAction } from "@/app/admin/actions";
 import { SetupNotice } from "@/components/admin/setup-notice";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { isAllowedAdminEmail, isSupabaseConfigured } from "@/lib/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -71,11 +74,27 @@ export default async function AdminLoginPage({
                 </div>
               ) : null}
 
-              <LoginForm
-                next={next}
-                initialEmail={unauthorizedEmail}
-                isConfigured={isSupabaseConfigured()}
-              />
+              <form action={signInAction} className="space-y-4">
+                <input type="hidden" name="next" value={next} />
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="admin@coffeeine-menu.com"
+                    defaultValue={unauthorizedEmail}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input id="password" name="password" type="password" required placeholder="Password" />
+                </div>
+                <Button type="submit" className="w-full" disabled={!isSupabaseConfigured()}>
+                  Login to admin
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </div>
