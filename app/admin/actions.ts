@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -43,6 +44,19 @@ const settingsSchema = z.object({
   working_hours: z.string().optional()
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email()
+});
+
+const resetPasswordSchema = z
+  .object({
+    password: z.string().min(6),
+    confirm_password: z.string().min(6)
+  })
+  .refine((values) => values.password === values.confirm_password, {
+    path: ["confirm_password"]
+  });
+
 async function getSupabaseOrThrow() {
   const supabase = await createServerSupabaseClient();
 
@@ -80,6 +94,64 @@ export async function signInAction(formData: FormData) {
   }
 
   redirect(next.startsWith("/admin") ? next : "/admin");
+}
+
+export async function requestPasswordResetAction(formData: FormData) {
+  if (!isSupabaseConfigured()) {
+    redirect("/admin/forgot-password?status=config");
+  }
+
+  const { email } = forgotPasswordSchema.parse({
+    email: String(formData.get("email") ?? "").trim()
+  });
+
+  const requestHeaders = await headers();
+  const origin =
+    requestHeaders.get("origin") ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "http://localhost:3000";
+
+  const supabase = await getSupabaseOrThrow();
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/callback?next=/admin/reset-password`
+  });
+
+  redirect("/admin/forgot-password?status=sent");
+}
+
+export async function updatePasswordAction(formData: FormData) {
+  if (!isSupabaseConfigured()) {
+    redirect("/admin/reset-password?error=config");
+  }
+
+  const result = resetPasswordSchema.safeParse({
+    password: formData.get("password"),
+    confirm_password: formData.get("confirm_password")
+  });
+
+  if (!result.success) {
+    redirect("/admin/reset-password?error=invalid-password");
+  }
+
+  const supabase = await getSupabaseOrThrow();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/admin/forgot-password?error=session-expired");
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: result.data.password
+  });
+
+  if (error) {
+    redirect("/admin/reset-password?error=update-failed");
+  }
+
+  await supabase.auth.signOut();
+  redirect("/admin/login?status=password-updated");
 }
 
 export async function signOutAction() {

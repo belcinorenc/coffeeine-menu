@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { signInAction } from "@/app/admin/actions";
@@ -17,6 +18,7 @@ export default async function AdminLoginPage({
   const params = await searchParams;
   const next = typeof params.next === "string" ? params.next : "/admin";
   const error = typeof params.error === "string" ? params.error : "";
+  const status = typeof params.status === "string" ? params.status : "";
   const unauthorizedEmail = typeof params.email === "string" ? params.email : "";
 
   if (isSupabaseConfigured()) {
@@ -58,6 +60,12 @@ export default async function AdminLoginPage({
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {status === "password-updated" ? (
+                <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                  Your password has been updated. Sign in with the new password.
+                </div>
+              ) : null}
+
               {error ? (
                 <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {error === "config" && "Add your Supabase environment variables first."}
@@ -82,12 +90,19 @@ export default async function AdminLoginPage({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" required placeholder="••••••••" />
+                  <Input id="password" name="password" type="password" required placeholder="Password" />
                 </div>
                 <Button type="submit" className="w-full" disabled={!isSupabaseConfigured()}>
                   Login to admin
                 </Button>
               </form>
+
+              <Link
+                href="/admin/forgot-password"
+                className="mt-4 inline-flex text-sm font-medium text-coffee-800 hover:text-coffee-900"
+              >
+                Forgot password?
+              </Link>
             </CardContent>
           </Card>
         </div>

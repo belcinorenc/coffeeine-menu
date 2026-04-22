@@ -106,6 +106,29 @@ The public menu will still render with demo data before Supabase is connected, b
 3. Add that email address to `ADMIN_EMAILS` in `.env.local` and in Vercel environment variables.
 4. Sign in at `/admin/login`.
 
+## Password Reset
+
+The app includes a password reset flow:
+
+1. Open `/admin/forgot-password`.
+2. Enter the admin email address.
+3. Open the recovery email from Supabase.
+4. Set the new password on `/admin/reset-password`.
+
+In Supabase, set Authentication > URL Configuration > Site URL to:
+
+```text
+https://www.coffeeine-menu.com
+```
+
+Add these redirect URLs:
+
+```text
+https://www.coffeeine-menu.com/**
+https://coffeeine-menu.com/**
+http://localhost:3000/**
+```
+
 Notes:
 
 - The UI restricts admin access using `ADMIN_EMAILS`.
