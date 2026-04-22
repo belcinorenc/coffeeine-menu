@@ -34,7 +34,12 @@ export default async function CategoriesPage() {
           <form action={createCategoryAction} className="grid gap-4 md:grid-cols-2">
             <Field label="Kategori adı" name="name" placeholder="Sıcak Kahveler" required />
             <Field label="Kısa adres (slug)" name="slug" placeholder="sicak-kahveler" required />
-            <ImageUploadField label="Kategori görseli" name="image_url" folder="categories" />
+            <ImageUploadField
+              label="Kategori görseli"
+              name="image_url"
+              folder="categories"
+              storagePath="new-category"
+            />
             <Field label="Sıra" name="sort_order" type="number" defaultValue="1" required />
             <div className="flex items-end gap-3 rounded-[24px] border border-coffee-200 bg-coffee-50/60 p-4 md:col-span-2">
               <label className="flex items-center gap-2 text-sm font-medium text-coffee-900">
@@ -67,6 +72,7 @@ export default async function CategoriesPage() {
                     label="Kategori görseli"
                     name="image_url"
                     folder="categories"
+                    storagePath={category.id}
                     defaultValue={category.image_url}
                   />
                   <Field

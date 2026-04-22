@@ -156,6 +156,13 @@ to authenticated
 using (bucket_id = 'coffeeine-media')
 with check (bucket_id = 'coffeeine-media');
 
+drop policy if exists "Authenticated can delete Coffeeine media" on storage.objects;
+create policy "Authenticated can delete Coffeeine media"
+on storage.objects
+for delete
+to authenticated
+using (bucket_id = 'coffeeine-media');
+
 comment on table public.categories is 'Coffeeine menu categories.';
 comment on table public.products is 'Coffeeine menu products linked to categories.';
 comment on table public.settings is 'Singleton table for global cafe info and hero content.';

@@ -10,11 +10,13 @@ import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 
 const STORAGE_BUCKET = "coffeeine-media";
+const MAX_IMAGE_SIZE_BYTES = 1024 * 1024;
 
 interface ImageUploadFieldProps {
   label: string;
   name: string;
   folder: "logos" | "products" | "categories";
+  storagePath: string;
   defaultValue?: string | null;
 }
 
@@ -22,6 +24,7 @@ export function ImageUploadField({
   label,
   name,
   folder,
+  storagePath,
   defaultValue = ""
 }: ImageUploadFieldProps) {
   const inputId = useId();
@@ -30,29 +33,48 @@ export function ImageUploadField({
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
   const canPreview = value.startsWith("http://") || value.startsWith("https://");
+  const normalizedStoragePath = `${folder}/${storagePath.replace(/^\/+/, "").replace(/\.[^.]+$/, "")}.webp`;
+
+  function getStoragePathFromPublicUrl(url: string) {
+    const marker = `/storage/v1/object/public/${STORAGE_BUCKET}/`;
+    const markerIndex = url.indexOf(marker);
+
+    if (markerIndex < 0) {
+      return null;
+    }
+
+    return decodeURIComponent(url.slice(markerIndex + marker.length).split("?")[0]);
+  }
 
   function uploadImage(file: File) {
     setError("");
 
-    if (!file.type.startsWith("image/")) {
-      setError("Lütfen JPG, PNG veya WebP formatında bir görsel seçin.");
+    if (file.type !== "image/webp") {
+      setError("Görseller WebP formatında olmalı. Lütfen .webp dosyası seçin.");
       return;
     }
 
-    if (file.size > 3 * 1024 * 1024) {
-      setError("Görsel 3 MB'den küçük olmalı.");
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      setError("Görsel 1 MB'den küçük olmalı.");
       return;
     }
 
     startTransition(async () => {
       const supabase = createClient();
-      const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${folder}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+      const previousPath = getStoragePathFromPublicUrl(value);
+
+      if (previousPath && previousPath !== normalizedStoragePath) {
+        await supabase.storage.from(STORAGE_BUCKET).remove([previousPath]);
+      }
+
+      await supabase.storage.from(STORAGE_BUCKET).remove([normalizedStoragePath]);
+
       const { error: uploadError } = await supabase.storage
         .from(STORAGE_BUCKET)
-        .upload(path, file, {
-          cacheControl: "31536000",
-          upsert: false
+        .upload(normalizedStoragePath, file, {
+          cacheControl: "3600",
+          contentType: "image/webp",
+          upsert: true
         });
 
       if (uploadError) {
@@ -62,8 +84,26 @@ export function ImageUploadField({
         return;
       }
 
-      const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-      setValue(data.publicUrl);
+      const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(normalizedStoragePath);
+      setValue(`${data.publicUrl}?v=${Date.now()}`);
+    });
+  }
+
+  function removeImage() {
+    setError("");
+
+    startTransition(async () => {
+      const supabase = createClient();
+      const currentPath = getStoragePathFromPublicUrl(value);
+      const pathsToRemove = Array.from(
+        new Set([currentPath, normalizedStoragePath].filter(Boolean))
+      ) as string[];
+
+      if (pathsToRemove.length > 0) {
+        await supabase.storage.from(STORAGE_BUCKET).remove(pathsToRemove);
+      }
+
+      setValue("");
     });
   }
 
@@ -90,7 +130,7 @@ export function ImageUploadField({
             <input
               id={fileInputId}
               type="file"
-              accept="image/png,image/jpeg,image/webp"
+              accept="image/webp,.webp"
               className="hidden"
               onChange={(event) => {
                 const file = event.target.files?.[0];
@@ -107,14 +147,15 @@ export function ImageUploadField({
               Görsel seç
             </label>
             {value ? (
-              <Button type="button" variant="ghost" size="sm" onClick={() => setValue("")}>
+              <Button type="button" variant="ghost" size="sm" onClick={removeImage}>
                 Görseli kaldır
               </Button>
             ) : null}
           </div>
           {error ? <p className="text-xs leading-5 text-red-700">{error}</p> : null}
           <p className="text-xs leading-5 text-muted-foreground">
-            Dosya seçebilir veya mevcut görsel URL'sini elle girebilirsiniz.
+            Sadece WebP kabul edilir. Maksimum dosya boyutu 1 MB; yeni yükleme önceki dosyanın
+            yerine geçer.
           </p>
         </div>
       </div>

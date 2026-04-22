@@ -99,7 +99,7 @@ The public menu will still render with demo data before Supabase is connected, b
 4. Run [`supabase/seed.sql`](C:/Users/belcin/Documents/Codex/2026-04-18-bir-kahve-d-kkan-i-in/supabase/seed.sql).
 5. Copy the project URL and anon key into `.env.local`.
 
-The schema also creates a public Supabase Storage bucket named `coffeeine-media`. Admin users can upload logo, category, and product images from the panel; the generated public URL is saved into the existing URL fields.
+The schema also creates a public Supabase Storage bucket named `coffeeine-media`. Admin users can upload logo, category, and product images from the panel; the generated public URL is saved into the existing URL fields. Uploads accept WebP only, max 1 MB per image, and each field writes to a stable path so replacing an image overwrites/removes the previous file instead of growing storage indefinitely.
 
 ## Create The First Admin User
 
@@ -165,6 +165,7 @@ Vercel will automatically detect Next.js and use the correct build settings.
 - Product search and category filtering
 - Global cafe settings editing
 - Logo, category image, and product image uploads through Supabase Storage
+- WebP-only image uploads with a 1 MB limit and one-file-per-field replacement
 - Empty states and loading states
 - Optional images and badges
 

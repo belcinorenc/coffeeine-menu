@@ -117,7 +117,12 @@ export default async function ProductsPage({
             />
             <TextField label="Fiyat (TRY)" name="price" type="number" step="1" placeholder="175" required />
             <TextField label="Sıra" name="sort_order" type="number" defaultValue="1" required />
-            <ImageUploadField label="Ürün görseli" name="image_url" folder="products" />
+            <ImageUploadField
+              label="Ürün görseli"
+              name="image_url"
+              folder="products"
+              storagePath="new-product"
+            />
             <TextField label="Etiket" name="badge" placeholder="Yeni / Çok Satan / Sezonluk" />
             <div className="lg:col-span-2">
               <Label htmlFor="description">Açıklama</Label>
@@ -231,6 +236,7 @@ function ProductEditor({
             label="Ürün görseli"
             name="image_url"
             folder="products"
+            storagePath={product.id}
             defaultValue={product.image_url}
           />
           <TextField

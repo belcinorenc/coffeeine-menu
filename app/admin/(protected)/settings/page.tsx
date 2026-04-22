@@ -36,6 +36,7 @@ export default async function SettingsPage() {
               label="Logo"
               name="logo_url"
               folder="logos"
+              storagePath="logo"
               defaultValue={settings.logo_url}
             />
             <Field label="Ana başlık" name="hero_title" defaultValue={settings.hero_title} required />
