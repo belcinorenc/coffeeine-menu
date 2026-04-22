@@ -8,6 +8,11 @@ interface CafeFooterProps {
 }
 
 export function CafeFooter({ settings }: CafeFooterProps) {
+  const mapUrl = settings.address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`
+    : "";
+  const phoneUrl = settings.phone ? `tel:${settings.phone.replace(/\s/g, "")}` : "";
+
   return (
     <footer className="rounded-[32px] border border-coffee-200/70 bg-coffee-900 px-6 py-8 text-coffee-50 shadow-glow">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
@@ -32,6 +37,26 @@ export function CafeFooter({ settings }: CafeFooterProps) {
             </div>
           </div>
           <p className="text-sm leading-6 text-coffee-50/80">{settings.hero_subtitle}</p>
+          <div className="flex flex-wrap gap-2 pt-2">
+            {phoneUrl ? (
+              <a
+                href={phoneUrl}
+                className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
+              >
+                Call cafe
+              </a>
+            ) : null}
+            {mapUrl ? (
+              <a
+                href={mapUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
+              >
+                Open map
+              </a>
+            ) : null}
+          </div>
         </div>
 
         <div className="grid gap-3 text-sm text-coffee-50/80 sm:min-w-[280px]">

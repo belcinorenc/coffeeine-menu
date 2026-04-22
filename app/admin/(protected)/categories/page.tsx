@@ -1,4 +1,5 @@
 import { createCategoryAction, deleteCategoryAction, moveCategoryAction, updateCategoryAction } from "@/app/admin/actions";
+import { ConfirmActionForm } from "@/components/admin/confirm-action-form";
 import { SetupNotice } from "@/components/admin/setup-notice";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
@@ -92,12 +93,15 @@ export default async function CategoriesPage() {
                       Move down
                     </Button>
                   </form>
-                  <form action={deleteCategoryAction}>
+                  <ConfirmActionForm
+                    action={deleteCategoryAction}
+                    message={`Delete "${category.name}" and all products inside it? This cannot be undone.`}
+                  >
                     <input type="hidden" name="id" value={category.id} />
                     <Button type="submit" variant="destructive" size="sm">
                       Delete
                     </Button>
-                  </form>
+                  </ConfirmActionForm>
                 </div>
               </CardContent>
             </Card>

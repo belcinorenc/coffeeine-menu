@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Coffee, FolderKanban, Settings2 } from "lucide-react";
+import { ArrowRight, Coffee, FolderKanban, Plus, Settings2 } from "lucide-react";
 
 import { SetupNotice } from "@/components/admin/setup-notice";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,12 @@ export default async function AdminDashboardPage() {
       </div>
 
       {!isSupabaseConfigured() ? <SetupNotice /> : null}
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <QuickAction href="/admin/products" label="Add or edit product" icon={<Plus className="h-4 w-4" />} />
+        <QuickAction href="/admin/categories" label="Organize categories" icon={<FolderKanban className="h-4 w-4" />} />
+        <QuickAction href="/admin/settings" label="Update cafe info" icon={<Settings2 className="h-4 w-4" />} />
+      </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <DashboardCard
@@ -46,6 +52,29 @@ export default async function AdminDashboardPage() {
         />
       </div>
     </div>
+  );
+}
+
+function QuickAction({
+  href,
+  label,
+  icon
+}: {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center justify-between rounded-[24px] border border-coffee-200 bg-white/70 px-4 py-3 text-sm font-semibold text-coffee-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
+    >
+      <span className="flex items-center gap-2">
+        <span className="rounded-full bg-coffee-100 p-2 text-coffee-800">{icon}</span>
+        {label}
+      </span>
+      <ArrowRight className="h-4 w-4 text-coffee-600" />
+    </Link>
   );
 }
 
