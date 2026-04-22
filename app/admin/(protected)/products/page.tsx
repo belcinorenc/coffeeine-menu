@@ -95,11 +95,18 @@ export default async function ProductsPage({
 
       {!isSupabaseConfigured() ? <SetupNotice /> : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Yeni ürün ekle</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <details className="group overflow-hidden rounded-[28px] border border-coffee-200 bg-white/80 shadow-sm">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 transition hover:bg-coffee-50/70">
+          <div>
+            <p className="text-xs uppercase tracking-[0.24em] text-coffee-700/70">Hızlı işlem</p>
+            <h2 className="font-serif text-2xl text-coffee-900">Yeni ürün ekle</h2>
+          </div>
+          <span className="flex items-center gap-3">
+            <Badge variant="secondary">Formu aç</Badge>
+            <ChevronDown className="h-5 w-5 text-coffee-700 transition group-open:rotate-180" />
+          </span>
+        </summary>
+        <div className="border-t border-coffee-100 p-5">
           <form action={createProductAction} className="grid gap-4 lg:grid-cols-2">
             <TextField label="Ürün adı" name="name" placeholder="Spanish Latte" required />
             <SelectField
@@ -138,8 +145,8 @@ export default async function ProductsPage({
               </Button>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </details>
 
       {filteredProducts.length === 0 ? (
         <EmptyState
