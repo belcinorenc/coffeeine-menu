@@ -43,9 +43,10 @@ export function LoginForm({ next, initialEmail = "", isConfigured }: LoginFormPr
         router.replace(next.startsWith("/admin") ? next : "/admin");
         router.refresh();
       } catch (caughtError) {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "missing Supabase URL";
         setError(
           caughtError instanceof Error
-            ? caughtError.message
+            ? `${caughtError.message}. Supabase URL: ${supabaseUrl}`
             : "Unable to sign in. Please try again."
         );
       }
