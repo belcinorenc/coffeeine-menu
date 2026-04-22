@@ -26,6 +26,7 @@ export const demoMenuData: PublicMenuData = {
       id: categoryIds.hot,
       name: "Hot Coffees",
       slug: "hot-coffees",
+      image_url: null,
       sort_order: 1,
       is_active: true,
       products: [
@@ -95,6 +96,7 @@ export const demoMenuData: PublicMenuData = {
       id: categoryIds.iced,
       name: "Iced Coffees",
       slug: "iced-coffees",
+      image_url: null,
       sort_order: 2,
       is_active: true,
       products: [
@@ -152,6 +154,7 @@ export const demoMenuData: PublicMenuData = {
       id: categoryIds.signature,
       name: "Signature Drinks",
       slug: "signature-drinks",
+      image_url: null,
       sort_order: 3,
       is_active: true,
       products: [
@@ -185,6 +188,7 @@ export const demoMenuData: PublicMenuData = {
       id: categoryIds.desserts,
       name: "Desserts",
       slug: "desserts",
+      image_url: null,
       sort_order: 4,
       is_active: true,
       products: [
@@ -230,6 +234,7 @@ export const demoMenuData: PublicMenuData = {
       id: categoryIds.breakfast,
       name: "Breakfast",
       slug: "breakfast",
+      image_url: null,
       sort_order: 5,
       is_active: true,
       products: [

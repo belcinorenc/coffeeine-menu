@@ -29,7 +29,7 @@ const getCachedPublicMenuData = unstable_cache(
       return demoMenuData;
     }
 
-    const [{ data: settings }, { data: categories }] = await Promise.all([
+    const [{ data: settings }, categoriesResult] = await Promise.all([
       supabase
         .from("settings")
         .select(
@@ -40,13 +40,40 @@ const getCachedPublicMenuData = unstable_cache(
       supabase
         .from("categories")
         .select(
-          "id, name, slug, sort_order, is_active, products(id, category_id, name, description, price, image_url, badge, is_available, is_active, sort_order)"
+          "id, name, slug, image_url, sort_order, is_active, products(id, category_id, name, description, price, image_url, badge, is_available, is_active, sort_order)"
         )
         .eq("is_active", true)
         .eq("products.is_active", true)
         .order("sort_order", { ascending: true })
         .order("sort_order", { foreignTable: "products", ascending: true })
     ]);
+
+    let categories = categoriesResult.data as Array<{
+      id: string;
+      name: string;
+      slug: string;
+      image_url: string | null;
+      sort_order: number;
+      is_active: boolean;
+      products?: PublicMenuData["categories"][number]["products"];
+    }> | null;
+
+    if (!categories && categoriesResult.error?.message.includes("image_url")) {
+      const fallbackResult = await supabase
+        .from("categories")
+        .select(
+          "id, name, slug, sort_order, is_active, products(id, category_id, name, description, price, image_url, badge, is_available, is_active, sort_order)"
+        )
+        .eq("is_active", true)
+        .eq("products.is_active", true)
+        .order("sort_order", { ascending: true })
+        .order("sort_order", { foreignTable: "products", ascending: true });
+
+      categories = fallbackResult.data?.map((category) => ({
+        ...category,
+        image_url: null
+      })) ?? null;
+    }
 
     if (!categories) {
       return demoMenuData;
@@ -102,12 +129,30 @@ export async function getCategories(): Promise<Category[]> {
   }
 
   const supabase = await requireSupabase();
-  const { data } = await supabase
+  const result = await supabase
     .from("categories")
-    .select("id, name, slug, sort_order, is_active, created_at, updated_at")
+    .select("id, name, slug, image_url, sort_order, is_active, created_at, updated_at")
     .order("sort_order", { ascending: true });
 
-  return data ?? [];
+  if (result.data) {
+    return result.data;
+  }
+
+  if (result.error?.message.includes("image_url")) {
+    const fallbackResult = await supabase
+      .from("categories")
+      .select("id, name, slug, sort_order, is_active, created_at, updated_at")
+      .order("sort_order", { ascending: true });
+
+    return (
+      fallbackResult.data?.map((category) => ({
+        ...category,
+        image_url: null
+      })) ?? []
+    );
+  }
+
+  return [];
 }
 
 export async function getProducts(): Promise<ProductWithCategory[]> {
@@ -118,21 +163,42 @@ export async function getProducts(): Promise<ProductWithCategory[]> {
         category: {
           id: category.id,
           name: category.name,
-          slug: category.slug
+          slug: category.slug,
+          image_url: category.image_url
         }
       }))
     );
   }
 
   const supabase = await requireSupabase();
-  const { data } = await supabase
+  const result = await supabase
     .from("products")
     .select(
-      "id, category_id, name, description, price, image_url, badge, is_available, is_active, sort_order, created_at, updated_at, category:categories(id, name, slug)"
+      "id, category_id, name, description, price, image_url, badge, is_available, is_active, sort_order, created_at, updated_at, category:categories(id, name, slug, image_url)"
     )
     .order("sort_order", { ascending: true });
 
-  return (data as ProductWithCategory[] | null) ?? [];
+  if (result.data) {
+    return (result.data as unknown as ProductWithCategory[] | null) ?? [];
+  }
+
+  if (result.error?.message.includes("image_url")) {
+    const fallbackResult = await supabase
+      .from("products")
+      .select(
+        "id, category_id, name, description, price, image_url, badge, is_available, is_active, sort_order, created_at, updated_at, category:categories(id, name, slug)"
+      )
+      .order("sort_order", { ascending: true });
+
+    return (
+      (fallbackResult.data?.map((product) => ({
+        ...product,
+        category: product.category ? { ...product.category, image_url: null } : null
+      })) as unknown as ProductWithCategory[] | undefined) ?? []
+    );
+  }
+
+  return [];
 }
 
 export async function getSettings(): Promise<Settings> {

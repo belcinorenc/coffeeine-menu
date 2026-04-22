@@ -58,7 +58,7 @@ middleware.ts
 - `components/admin/*`: reusable admin shell and setup messaging.
 - `lib/data.ts`: server-side queries and fallback demo mode.
 - `lib/supabase/*`: browser, server, and middleware Supabase helpers.
-- `supabase/schema.sql`: database schema, indexes, timestamps, and starter RLS.
+- `supabase/schema.sql`: database schema, Storage bucket setup, indexes, timestamps, and starter RLS.
 - `supabase/seed.sql`: Coffeeine sample data in TRY pricing.
 
 ## Local Setup
@@ -98,6 +98,8 @@ The public menu will still render with demo data before Supabase is connected, b
 3. Run [`supabase/schema.sql`](C:/Users/belcin/Documents/Codex/2026-04-18-bir-kahve-d-kkan-i-in/supabase/schema.sql).
 4. Run [`supabase/seed.sql`](C:/Users/belcin/Documents/Codex/2026-04-18-bir-kahve-d-kkan-i-in/supabase/seed.sql).
 5. Copy the project URL and anon key into `.env.local`.
+
+The schema also creates a public Supabase Storage bucket named `coffeeine-media`. Admin users can upload logo, category, and product images from the panel; the generated public URL is saved into the existing URL fields.
 
 ## Create The First Admin User
 
@@ -162,6 +164,7 @@ Vercel will automatically detect Next.js and use the correct build settings.
 - Category and product reordering with simple up/down actions
 - Product search and category filtering
 - Global cafe settings editing
+- Logo, category image, and product image uploads through Supabase Storage
 - Empty states and loading states
 - Optional images and badges
 
@@ -174,4 +177,4 @@ Vercel will automatically detect Next.js and use the correct build settings.
 
 ## Verification
 
-This workspace sandbox did not allow Node.js to run, so I could not execute `npm install`, `npm run lint`, or `next build` here. The source has been structured to be Vercel-ready, but the first local run should include a quick install/build check.
+`npx tsc --noEmit` passes. On this Windows workspace, `npm run build` can fail with a local `spawn EPERM` permission issue before Next.js finishes compiling; Vercel should still run the production build in its Linux environment.

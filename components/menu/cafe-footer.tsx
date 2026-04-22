@@ -33,7 +33,7 @@ export function CafeFooter({ settings }: CafeFooterProps) {
             </div>
             <div>
               <p className="font-serif text-2xl">{settings.cafe_name}</p>
-              <p className="text-sm text-coffee-100/70">Craft coffee and all-day comfort.</p>
+              <p className="text-sm text-coffee-100/70">Nitelikli kahve ve gün boyu sakin lezzetler.</p>
             </div>
           </div>
           <p className="text-sm leading-6 text-coffee-50/80">{settings.hero_subtitle}</p>
@@ -43,7 +43,7 @@ export function CafeFooter({ settings }: CafeFooterProps) {
                 href={phoneUrl}
                 className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
               >
-                Call cafe
+                Cafe'yi ara
               </a>
             ) : null}
             {mapUrl ? (
@@ -53,7 +53,7 @@ export function CafeFooter({ settings }: CafeFooterProps) {
                 rel="noreferrer"
                 className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
               >
-                Open map
+                Haritada aç
               </a>
             ) : null}
           </div>

@@ -10,14 +10,14 @@ export function SetupNotice() {
           <AlertTriangle className="h-5 w-5" />
         </div>
         <div>
-          <CardTitle className="text-xl text-amber-900">Supabase setup required</CardTitle>
+          <CardTitle className="text-xl text-amber-900">Supabase kurulumu gerekli</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
         <p className="text-sm leading-6 text-amber-900/80">
-          The public menu is showing demo Coffeeine data right now. Add your Supabase URL and anon
-          key in `.env.local`, run the SQL files in the `supabase/` folder, and the admin panel
-          will become fully live.
+          Şu anda menü demo Coffeeine verilerini gösteriyor. `.env.local` içine Supabase URL ve
+          anon key değerlerini ekleyin, `supabase/` klasöründeki SQL dosyalarını çalıştırın; panel
+          tamamen canlı hale gelir.
         </p>
       </CardContent>
     </Card>

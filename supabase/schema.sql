@@ -14,11 +14,15 @@ create table if not exists public.categories (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   slug text not null unique,
+  image_url text,
   sort_order integer not null default 1,
   is_active boolean not null default true,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+alter table public.categories
+add column if not exists image_url text;
 
 create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
@@ -77,6 +81,10 @@ alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.settings enable row level security;
 
+insert into storage.buckets (id, name, public)
+values ('coffeeine-media', 'coffeeine-media', true)
+on conflict (id) do update set public = true;
+
 drop policy if exists "Public can read active categories" on public.categories;
 create policy "Public can read active categories"
 on public.categories
@@ -126,6 +134,27 @@ for all
 to authenticated
 using (true)
 with check (true);
+
+drop policy if exists "Public can read Coffeeine media" on storage.objects;
+create policy "Public can read Coffeeine media"
+on storage.objects
+for select
+using (bucket_id = 'coffeeine-media');
+
+drop policy if exists "Authenticated can upload Coffeeine media" on storage.objects;
+create policy "Authenticated can upload Coffeeine media"
+on storage.objects
+for insert
+to authenticated
+with check (bucket_id = 'coffeeine-media');
+
+drop policy if exists "Authenticated can update Coffeeine media" on storage.objects;
+create policy "Authenticated can update Coffeeine media"
+on storage.objects
+for update
+to authenticated
+using (bucket_id = 'coffeeine-media')
+with check (bucket_id = 'coffeeine-media');
 
 comment on table public.categories is 'Coffeeine menu categories.';
 comment on table public.products is 'Coffeeine menu products linked to categories.';

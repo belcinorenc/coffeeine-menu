@@ -17,6 +17,7 @@ function refreshPublicMenuCache() {
 const categorySchema = z.object({
   name: z.string().min(2),
   slug: z.string().min(2),
+  image_url: z.string().url().optional().or(z.literal("")),
   sort_order: z.coerce.number().int().min(1),
   is_active: z.boolean()
 });
@@ -175,11 +176,15 @@ export async function createCategoryAction(formData: FormData) {
   const payload = categorySchema.parse({
     name: formData.get("name"),
     slug: formData.get("slug") || toSlug(String(formData.get("name") ?? "")),
+    image_url: formData.get("image_url"),
     sort_order: formData.get("sort_order"),
     is_active: parseCheckbox(formData, "is_active")
   });
 
-  await supabase.from("categories").insert(payload);
+  await supabase.from("categories").insert({
+    ...payload,
+    image_url: payload.image_url || null
+  });
   refreshPublicMenuCache();
   revalidatePath("/admin");
   revalidatePath("/admin/categories");
@@ -192,11 +197,15 @@ export async function updateCategoryAction(formData: FormData) {
   const payload = categorySchema.parse({
     name: formData.get("name"),
     slug: formData.get("slug") || toSlug(String(formData.get("name") ?? "")),
+    image_url: formData.get("image_url"),
     sort_order: formData.get("sort_order"),
     is_active: parseCheckbox(formData, "is_active")
   });
 
-  await supabase.from("categories").update(payload).eq("id", id);
+  await supabase.from("categories").update({
+    ...payload,
+    image_url: payload.image_url || null
+  }).eq("id", id);
   refreshPublicMenuCache();
   revalidatePath("/admin/categories");
 }

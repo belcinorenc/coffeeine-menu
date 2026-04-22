@@ -41,11 +41,10 @@ export default async function AdminLoginPage({
         <section className="rounded-[32px] border border-white/60 bg-coffee-glow p-8 shadow-glow">
           <p className="text-sm uppercase tracking-[0.3em] text-coffee-700/80">Coffeeine</p>
           <h1 className="mt-4 max-w-md font-serif text-5xl leading-tight text-ink">
-            Admin access for your QR menu operations.
+            QR menü operasyonları için yönetim erişimi.
           </h1>
           <p className="mt-4 max-w-lg text-sm leading-7 text-coffee-800/80">
-            Staff can update categories, hide sold-out items, refresh pricing, and edit brand
-            information without touching code.
+            Ekip; kategori, stok, fiyat ve marka bilgilerini kodla uğraşmadan güncelleyebilir.
           </p>
         </section>
 
@@ -54,33 +53,33 @@ export default async function AdminLoginPage({
 
           <Card>
             <CardHeader>
-              <CardTitle>Sign in</CardTitle>
+              <CardTitle>Giriş yap</CardTitle>
               <CardDescription>
-                Use your Supabase Auth email and password to access the admin panel.
+                Yönetim paneline erişmek için Supabase Auth e-posta ve şifrenizi kullanın.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {status === "password-updated" ? (
                 <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                  Your password has been updated. Sign in with the new password.
+                  Şifreniz güncellendi. Yeni şifrenizle giriş yapabilirsiniz.
                 </div>
               ) : null}
 
               {error ? (
                 <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {error === "config" && "Add your Supabase environment variables first."}
-                  {error === "invalid-credentials" && "Email or password was incorrect."}
+                  {error === "config" && "Önce Supabase ortam değişkenlerini ekleyin."}
+                  {error === "invalid-credentials" && "E-posta veya şifre hatalı."}
                   {error === "auth-fetch-failed" &&
-                    `The server could not reach Supabase Auth. Details: ${message || "fetch failed"}`}
+                    `Sunucu Supabase Auth'a ulaşamadı. Detay: ${message || "fetch failed"}`}
                   {error === "unauthorized" &&
-                    `This account (${unauthorizedEmail || "current email"}) is valid in Supabase Auth but is not listed in ADMIN_EMAILS. Add it to your local or Vercel environment variables and redeploy if needed.`}
+                    `Bu hesap (${unauthorizedEmail || "mevcut e-posta"}) Supabase Auth'ta var ancak ADMIN_EMAILS listesinde değil. Vercel ortam değişkenlerine ekleyip yeniden deploy edin.`}
                 </div>
               ) : null}
 
               <form action={signInAction} className="space-y-4">
                 <input type="hidden" name="next" value={next} />
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">E-posta</Label>
                   <Input
                     id="email"
                     name="email"
@@ -91,11 +90,11 @@ export default async function AdminLoginPage({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" name="password" type="password" required placeholder="Password" />
+                  <Label htmlFor="password">Şifre</Label>
+                  <Input id="password" name="password" type="password" required placeholder="Şifre" />
                 </div>
                 <Button type="submit" className="w-full" disabled={!isSupabaseConfigured()}>
-                  Login to admin
+                  Panele giriş yap
                 </Button>
               </form>
             </CardContent>

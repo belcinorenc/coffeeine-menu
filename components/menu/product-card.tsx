@@ -40,7 +40,7 @@ export function ProductCard({ product }: ProductCardProps) {
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-serif text-2xl text-ink">{product.name}</h3>
                 {product.badge ? <Badge variant="secondary">{product.badge}</Badge> : null}
-                {!product.is_available ? <Badge variant="muted">Unavailable</Badge> : null}
+                {!product.is_available ? <Badge variant="muted">Stokta yok</Badge> : null}
               </div>
               {product.description ? (
                 <p className="mt-2 max-w-xl text-sm leading-6 text-coffee-800/80">

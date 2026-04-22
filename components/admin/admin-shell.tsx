@@ -6,10 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
 const navigation = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/categories", label: "Categories", icon: FolderKanban },
-  { href: "/admin/products", label: "Products", icon: Coffee },
-  { href: "/admin/settings", label: "Settings", icon: Settings2 }
+  { href: "/admin", label: "Panel", icon: LayoutDashboard },
+  { href: "/admin/categories", label: "Kategoriler", icon: FolderKanban },
+  { href: "/admin/products", label: "Ürünler", icon: Coffee },
+  { href: "/admin/settings", label: "Ayarlar", icon: Settings2 }
 ];
 
 interface AdminShellProps {
@@ -29,7 +29,7 @@ export function AdminShell({ children, userEmail, isConfigured }: AdminShellProp
             </div>
             <div>
               <p className="font-serif text-2xl text-coffee-900">Coffeeine</p>
-              <p className="text-sm text-muted-foreground">Admin panel</p>
+              <p className="text-sm text-muted-foreground">Yönetim paneli</p>
             </div>
           </div>
         </Card>
@@ -53,7 +53,7 @@ export function AdminShell({ children, userEmail, isConfigured }: AdminShellProp
           <div className="space-y-3 text-sm">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant={isConfigured ? "success" : "warning"}>
-                {isConfigured ? "Connected" : "Demo mode"}
+                {isConfigured ? "Bağlandı" : "Demo modu"}
               </Badge>
               {userEmail ? <span className="text-coffee-900">{userEmail}</span> : null}
             </div>

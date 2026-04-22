@@ -4,6 +4,7 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
+  image_url: string | null;
   sort_order: number;
   is_active: boolean;
   created_at?: string;
@@ -26,7 +27,7 @@ export interface Product {
 }
 
 export interface ProductWithCategory extends Product {
-  category?: Pick<Category, "id" | "name" | "slug"> | null;
+  category?: Pick<Category, "id" | "name" | "slug" | "image_url"> | null;
 }
 
 export interface Settings {

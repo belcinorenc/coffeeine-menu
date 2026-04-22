@@ -33,28 +33,28 @@ export default async function ResetPasswordPage({
     <main className="mx-auto flex min-h-screen max-w-xl items-center px-4 py-6">
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Choose a new password</CardTitle>
+          <CardTitle>Yeni şifre belirleyin</CardTitle>
           <CardDescription>
-            Use at least 6 characters. After saving, sign in with your new password.
+            En az 6 karakter kullanın. Kaydettikten sonra yeni şifrenizle giriş yapın.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {error ? (
             <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error === "invalid-password" &&
-                "Passwords must match and be at least 6 characters long."}
+                "Şifreler eşleşmeli ve en az 6 karakter olmalı."}
               {error === "update-failed" &&
-                "We could not update your password. Request a fresh reset link and try again."}
+                "Şifreniz güncellenemedi. Yeni bir sıfırlama bağlantısı isteyip tekrar deneyin."}
             </div>
           ) : null}
 
           <form action={updatePasswordAction} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="password">New password</Label>
+              <Label htmlFor="password">Yeni şifre</Label>
               <Input id="password" name="password" type="password" required minLength={6} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm_password">Confirm password</Label>
+              <Label htmlFor="confirm_password">Yeni şifre tekrar</Label>
               <Input
                 id="confirm_password"
                 name="confirm_password"
@@ -64,7 +64,7 @@ export default async function ResetPasswordPage({
               />
             </div>
             <Button type="submit" className="w-full">
-              Save new password
+              Yeni şifreyi kaydet
             </Button>
           </form>
         </CardContent>

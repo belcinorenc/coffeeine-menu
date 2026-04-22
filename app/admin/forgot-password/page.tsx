@@ -24,27 +24,27 @@ export default async function ForgotPasswordPage({
 
         <Card>
           <CardHeader>
-            <CardTitle>Reset your password</CardTitle>
+            <CardTitle>Şifrenizi sıfırlayın</CardTitle>
             <CardDescription>
-              Enter your admin email and we will send a secure reset link.
+              Yönetici e-postanızı girin; güvenli sıfırlama bağlantısı gönderelim.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {status === "sent" ? (
               <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                If this email exists in Supabase Auth, a reset link has been sent.
+                Bu e-posta Supabase Auth içinde varsa sıfırlama bağlantısı gönderildi.
               </div>
             ) : null}
 
             {error === "session-expired" ? (
               <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                Your reset session expired. Please request a new password reset link.
+                Sıfırlama oturumunuz sona erdi. Lütfen yeni bir bağlantı isteyin.
               </div>
             ) : null}
 
             <form action={requestPasswordResetAction} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">E-posta</Label>
                 <Input
                   id="email"
                   name="email"
@@ -54,7 +54,7 @@ export default async function ForgotPasswordPage({
                 />
               </div>
               <Button type="submit" className="w-full" disabled={!isSupabaseConfigured()}>
-                Send reset link
+                Sıfırlama bağlantısı gönder
               </Button>
             </form>
 
@@ -62,7 +62,7 @@ export default async function ForgotPasswordPage({
               href="/admin/login"
               className="mt-4 inline-flex text-sm font-medium text-coffee-800 hover:text-coffee-900"
             >
-              Back to login
+              Giriş ekranına dön
             </Link>
           </CardContent>
         </Card>

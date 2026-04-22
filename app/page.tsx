@@ -16,8 +16,8 @@ export default async function HomePage() {
 
       {categories.length === 0 ? (
         <EmptyState
-          title="Menu is being prepared"
-          description="Add categories and products from the admin panel to publish Coffeeine's QR menu."
+          title="Menü hazırlanıyor"
+          description="Coffeeine QR menüsünü yayına almak için panelden kategori ve ürün ekleyin."
         />
       ) : (
         <MenuExplorer categories={categories} />

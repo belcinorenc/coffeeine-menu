@@ -96,7 +96,7 @@ export function MenuExplorer({ categories }: MenuExplorerProps) {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search coffee, desserts, breakfast..."
+            placeholder="Kahve, tatlı veya kahvaltı ara..."
             className="h-12 rounded-full border-white/70 bg-white/90 pl-11 pr-12 shadow-glow"
           />
           {query ? (
@@ -104,7 +104,7 @@ export function MenuExplorer({ categories }: MenuExplorerProps) {
               type="button"
               onClick={() => setQuery("")}
               className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-coffee-100 text-coffee-800 transition hover:bg-coffee-200"
-              aria-label="Clear search"
+              aria-label="Aramayı temizle"
             >
               <X className="h-4 w-4" />
             </button>
@@ -114,8 +114,8 @@ export function MenuExplorer({ categories }: MenuExplorerProps) {
 
       {filteredCategories.length === 0 ? (
         <EmptyState
-          title="No menu items found"
-          description="Try another search term or browse the categories above."
+          title="Sonuç bulunamadı"
+          description="Farklı bir arama deneyin veya yukarıdaki kategorilere göz atın."
         />
       ) : (
         <div className="space-y-8">
