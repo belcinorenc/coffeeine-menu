@@ -84,7 +84,13 @@ export async function signInAction(formData: FormData) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error || !data.user) {
-    redirect("/admin/login?error=invalid-credentials");
+    const message = encodeURIComponent(error?.message ?? "No user returned.");
+
+    if (error?.message?.toLowerCase().includes("fetch")) {
+      redirect(`/admin/login?error=auth-fetch-failed&message=${message}`);
+    }
+
+    redirect(`/admin/login?error=invalid-credentials&message=${message}`);
   }
 
   if (!isAllowedAdminEmail(data.user.email)) {

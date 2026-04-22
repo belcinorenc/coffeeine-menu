@@ -18,6 +18,7 @@ export default async function AdminLoginPage({
   const next = typeof params.next === "string" ? params.next : "/admin";
   const error = typeof params.error === "string" ? params.error : "";
   const status = typeof params.status === "string" ? params.status : "";
+  const message = typeof params.message === "string" ? params.message : "";
   const unauthorizedEmail = typeof params.email === "string" ? params.email : "";
 
   if (isSupabaseConfigured()) {
@@ -69,6 +70,8 @@ export default async function AdminLoginPage({
                 <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {error === "config" && "Add your Supabase environment variables first."}
                   {error === "invalid-credentials" && "Email or password was incorrect."}
+                  {error === "auth-fetch-failed" &&
+                    `The server could not reach Supabase Auth. Details: ${message || "fetch failed"}`}
                   {error === "unauthorized" &&
                     `This account (${unauthorizedEmail || "current email"}) is valid in Supabase Auth but is not listed in ADMIN_EMAILS. Add it to your local or Vercel environment variables and redeploy if needed.`}
                 </div>
