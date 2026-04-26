@@ -40,7 +40,7 @@ const getCachedPublicMenuData = unstable_cache(
       supabase
         .from("categories")
         .select(
-          "id, name, slug, image_url, sort_order, is_active, products(id, category_id, name, description, price, image_url, badge, is_available, is_active, sort_order)"
+          "id, name, slug, image_url, sort_order, is_active, products(id, category_id, name, description, product_options, price, image_url, badge, is_available, is_active, sort_order)"
         )
         .eq("is_active", true)
         .eq("products.is_active", true)
@@ -58,7 +58,11 @@ const getCachedPublicMenuData = unstable_cache(
       products?: PublicMenuData["categories"][number]["products"];
     }> | null;
 
-    if (!categories && categoriesResult.error?.message.includes("image_url")) {
+    if (
+      !categories &&
+      (categoriesResult.error?.message.includes("image_url") ||
+        categoriesResult.error?.message.includes("product_options"))
+    ) {
       const fallbackResult = await supabase
         .from("categories")
         .select(
@@ -71,7 +75,11 @@ const getCachedPublicMenuData = unstable_cache(
 
       categories = fallbackResult.data?.map((category) => ({
         ...category,
-        image_url: null
+        image_url: null,
+        products: category.products?.map((product) => ({
+          ...product,
+          product_options: null
+        }))
       })) ?? null;
     }
 
@@ -174,7 +182,7 @@ export async function getProducts(): Promise<ProductWithCategory[]> {
   const result = await supabase
     .from("products")
     .select(
-      "id, category_id, name, description, price, image_url, badge, is_available, is_active, sort_order, created_at, updated_at, category:categories(id, name, slug, image_url)"
+      "id, category_id, name, description, product_options, price, image_url, badge, is_available, is_active, sort_order, created_at, updated_at, category:categories(id, name, slug, image_url)"
     )
     .order("sort_order", { ascending: true });
 
@@ -182,7 +190,10 @@ export async function getProducts(): Promise<ProductWithCategory[]> {
     return (result.data as unknown as ProductWithCategory[] | null) ?? [];
   }
 
-  if (result.error?.message.includes("image_url")) {
+  if (
+    result.error?.message.includes("image_url") ||
+    result.error?.message.includes("product_options")
+  ) {
     const fallbackResult = await supabase
       .from("products")
       .select(
@@ -193,6 +204,7 @@ export async function getProducts(): Promise<ProductWithCategory[]> {
     return (
       (fallbackResult.data?.map((product) => ({
         ...product,
+        product_options: null,
         category: product.category ? { ...product.category, image_url: null } : null
       })) as unknown as ProductWithCategory[] | undefined) ?? []
     );

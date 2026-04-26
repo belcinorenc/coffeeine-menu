@@ -26,6 +26,7 @@ const productSchema = z.object({
   category_id: z.string().uuid(),
   name: z.string().min(2),
   description: z.string().optional(),
+  product_options: z.string().optional(),
   price: z.coerce.number().min(0),
   image_url: z.string().url().optional().or(z.literal("")),
   badge: z.string().optional(),
@@ -260,6 +261,7 @@ export async function createProductAction(formData: FormData) {
     category_id: formData.get("category_id"),
     name: formData.get("name"),
     description: formData.get("description"),
+    product_options: formData.get("product_options"),
     price: formData.get("price"),
     image_url: formData.get("image_url"),
     badge: formData.get("badge"),
@@ -271,6 +273,7 @@ export async function createProductAction(formData: FormData) {
   await supabase.from("products").insert({
     ...payload,
     description: payload.description || null,
+    product_options: payload.product_options || null,
     image_url: payload.image_url || null,
     badge: payload.badge || null
   });
@@ -287,6 +290,7 @@ export async function updateProductAction(formData: FormData) {
     category_id: formData.get("category_id"),
     name: formData.get("name"),
     description: formData.get("description"),
+    product_options: formData.get("product_options"),
     price: formData.get("price"),
     image_url: formData.get("image_url"),
     badge: formData.get("badge"),
@@ -300,6 +304,7 @@ export async function updateProductAction(formData: FormData) {
     .update({
       ...payload,
       description: payload.description || null,
+      product_options: payload.product_options || null,
       image_url: payload.image_url || null,
       badge: payload.badge || null
     })

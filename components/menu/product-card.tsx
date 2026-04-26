@@ -10,6 +10,10 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const isUnavailable = !product.is_available;
+  const optionItems = (product.product_options ?? "")
+    .split(/\r?\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
 
   return (
     <article
@@ -17,7 +21,7 @@ export function ProductCard({ product }: ProductCardProps) {
         isUnavailable ? "opacity-60 saturate-50" : "hover:-translate-y-0.5"
       }`}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-coffee-100 to-oat">
+      <div className="relative aspect-[6/5] w-full overflow-hidden bg-gradient-to-br from-coffee-100 to-oat">
         {product.image_url ? (
           <Image
             src={product.image_url}
@@ -33,34 +37,49 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="line-clamp-2 font-serif text-xl leading-tight text-ink sm:text-2xl">
-                {product.name}
-              </h3>
-              {product.badge ? <Badge variant="secondary">{product.badge}</Badge> : null}
-              {!product.is_available ? <Badge variant="muted">Stokta yok</Badge> : null}
-            </div>
-          </div>
+      <div className="flex flex-1 flex-col gap-2.5 p-3 sm:p-4">
+        <h3 className="line-clamp-2 font-serif text-xl leading-[1.05] text-ink sm:text-2xl">
+          {product.name}
+        </h3>
 
+        <div className="flex items-center justify-between gap-2">
           <p className="whitespace-nowrap rounded-full bg-oat px-3 py-1 text-sm font-semibold text-coffee-900">
             {formatCurrency(product.price)}
           </p>
+          {!product.is_available ? (
+            <Badge variant="muted" className="whitespace-nowrap">
+              Stokta yok
+            </Badge>
+          ) : null}
         </div>
+
+        {product.badge ? (
+          <Badge
+            variant="secondary"
+            className="w-full justify-center whitespace-nowrap px-3 py-2 text-[11px] uppercase tracking-[0.16em]"
+          >
+            {product.badge}
+          </Badge>
+        ) : null}
 
         {product.description ? (
-          <p className="line-clamp-3 text-sm leading-6 text-coffee-800/80">
+          <p className="line-clamp-3 text-sm leading-5 text-coffee-800/80">
             {product.description}
           </p>
-        ) : (
-          <div className="flex-1" />
-        )}
+        ) : null}
 
-        <div className="mt-auto pt-1 text-xs uppercase tracking-[0.22em] text-coffee-700/55">
-          {product.is_available ? "Siparişe hazır" : "Geçici olarak kapalı"}
-        </div>
+        {optionItems.length > 0 ? (
+          <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
+            {optionItems.map((option) => (
+              <span
+                key={option}
+                className="inline-flex rounded-full border border-coffee-200 bg-coffee-50 px-2.5 py-1 text-[11px] font-medium text-coffee-800"
+              >
+                {option}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
     </article>
   );

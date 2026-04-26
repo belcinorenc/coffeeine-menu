@@ -29,6 +29,7 @@ create table if not exists public.products (
   category_id uuid not null references public.categories(id) on delete cascade,
   name text not null,
   description text,
+  product_options text,
   price numeric(10, 2) not null default 0,
   image_url text,
   badge text,
@@ -38,6 +39,9 @@ create table if not exists public.products (
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+alter table public.products
+add column if not exists product_options text;
 
 create table if not exists public.settings (
   id integer primary key default 1 check (id = 1),

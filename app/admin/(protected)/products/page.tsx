@@ -36,6 +36,7 @@ export default async function ProductsPage({
       !search ||
       product.name.toLowerCase().includes(search) ||
       product.description?.toLowerCase().includes(search) ||
+      product.product_options?.toLowerCase().includes(search) ||
       product.badge?.toLowerCase().includes(search);
 
     const matchesCategory = categoryFilter === "all" || product.category_id === categoryFilter;
@@ -130,6 +131,15 @@ export default async function ProductsPage({
             <div className="lg:col-span-2">
               <Label htmlFor="description">Açıklama</Label>
               <Textarea id="description" name="description" placeholder="Kısa menü açıklaması" />
+            </div>
+            <div className="lg:col-span-2">
+              <Label htmlFor="product_options">Aromalar / seçenekler</Label>
+              <Textarea
+                id="product_options"
+                name="product_options"
+                placeholder="Çilek, mango, karpuz veya her satıra bir seçenek"
+                className="min-h-[96px]"
+              />
             </div>
             <div className="flex flex-wrap gap-4 rounded-[24px] border border-coffee-200 bg-coffee-50/60 p-4 lg:col-span-2">
               <label className="flex items-center gap-2 text-sm font-medium text-coffee-900">
@@ -258,6 +268,16 @@ function ProductEditor({
               name="description"
               defaultValue={product.description ?? ""}
               placeholder="Kısa menü açıklaması"
+            />
+          </div>
+          <div className="lg:col-span-2">
+            <Label htmlFor={`product-options-${product.id}`}>Aromalar / seçenekler</Label>
+            <Textarea
+              id={`product-options-${product.id}`}
+              name="product_options"
+              defaultValue={product.product_options ?? ""}
+              placeholder="Çilek, mango, karpuz veya her satıra bir seçenek"
+              className="min-h-[96px]"
             />
           </div>
           <div className="flex flex-wrap gap-4 rounded-[24px] border border-coffee-200 bg-coffee-50/60 p-4 lg:col-span-2">

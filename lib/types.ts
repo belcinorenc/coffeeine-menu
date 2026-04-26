@@ -16,6 +16,7 @@ export interface Product {
   category_id: string;
   name: string;
   description: string | null;
+  product_options: string | null;
   price: number;
   image_url: string | null;
   badge: string | null;

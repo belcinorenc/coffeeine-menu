@@ -104,7 +104,7 @@ export function MenuExplorer({ categories }: MenuExplorerProps) {
                 href={`#${category.slug}`}
                 onClick={() => setActiveSlug(category.slug)}
                 className={cn(
-                  "rounded-full px-4 py-2 text-sm font-medium text-coffee-800 transition",
+                  "rounded-full px-3 py-2 text-[13px] font-medium text-coffee-800 transition whitespace-nowrap sm:px-4 sm:text-sm",
                   activeSlug === category.slug && !query
                     ? "bg-coffee-800 text-white shadow-sm"
                     : "bg-coffee-50 hover:bg-coffee-100"
