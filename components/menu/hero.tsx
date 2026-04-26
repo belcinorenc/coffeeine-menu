@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { Instagram, MapPin, Phone } from "lucide-react";
 
 import type { Settings } from "@/lib/types";
 
@@ -9,71 +8,31 @@ interface HeroProps {
 
 export function Hero({ settings }: HeroProps) {
   return (
-    <section className="relative overflow-hidden rounded-[32px] border border-white/50 bg-coffee-glow px-5 py-6 shadow-glow sm:px-8 sm:py-8">
-      <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-coffee-500/20 to-transparent" />
-
-      <div className="relative flex flex-col gap-6">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 rounded-full bg-white/75 px-2 py-1 pr-4 text-sm font-medium text-coffee-800">
-            <span className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-coffee-800 font-serif text-white">
-              {settings.logo_url ? (
-                <Image src={settings.logo_url} alt={settings.cafe_name} fill className="object-cover" sizes="32px" />
-              ) : (
-                settings.cafe_name.slice(0, 1)
-              )}
-            </span>
-            {settings.cafe_name} QR Menu
-          </div>
-          <p className="text-xs uppercase tracking-[0.28em] text-coffee-700/80">
-            Scan. Sip. Stay.
-          </p>
+    <section className="overflow-hidden rounded-[32px] border border-white/50 bg-coffee-glow px-5 py-4 shadow-glow sm:px-6">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-xs uppercase tracking-[0.34em] text-coffee-700/75">Coffeeine</p>
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <p className="text-sm uppercase tracking-[0.34em] text-coffee-700/80">Coffeeine</p>
-            <h1 className="max-w-xl font-serif text-4xl leading-tight text-ink sm:text-5xl">
-              {settings.hero_title}
-            </h1>
-          </div>
-          <p className="max-w-2xl text-sm leading-7 text-coffee-800/85 sm:text-base">
-            {settings.hero_subtitle}
-          </p>
+        <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-white/70 bg-white/95 shadow-lg shadow-coffee-900/10 sm:h-24 sm:w-24">
+          {settings.logo_url ? (
+            <Image
+              src={settings.logo_url}
+              alt={settings.cafe_name}
+              fill
+              sizes="(max-width: 640px) 80px, 96px"
+              quality={100}
+              className="object-contain p-2"
+            />
+          ) : (
+            <span className="font-serif text-3xl text-coffee-900">{settings.cafe_name.slice(0, 1)}</span>
+          )}
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3">
-          {settings.phone ? (
-            <InfoPill icon={<Phone className="h-4 w-4" />} label={settings.phone} />
-          ) : null}
-          {settings.address ? (
-            <InfoPill icon={<MapPin className="h-4 w-4" />} label={settings.address} />
-          ) : null}
-          {settings.instagram_url ? (
-            <a
-              href={settings.instagram_url}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-2xl border border-white/60 bg-white/70 px-4 py-3 text-sm font-medium text-coffee-900 transition hover:bg-white"
-            >
-              <span className="flex items-center gap-2">
-                <Instagram className="h-4 w-4" />
-                Follow on Instagram
-              </span>
-            </a>
-          ) : null}
+        <div className="min-w-0 text-right">
+          <p className="truncate text-xs uppercase tracking-[0.34em] text-coffee-700/75">QR Menu</p>
         </div>
       </div>
     </section>
-  );
-}
-
-function InfoPill({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div className="rounded-2xl border border-white/60 bg-white/70 px-4 py-3 text-sm text-coffee-900">
-      <span className="flex items-center gap-2">
-        {icon}
-        {label}
-      </span>
-    </div>
   );
 }

@@ -75,26 +75,6 @@ export function MenuExplorer({ categories }: MenuExplorerProps) {
   return (
     <section className="space-y-6">
       <div className="sticky top-3 z-20 space-y-3 sm:top-4">
-        <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
-          <div className="inline-flex min-w-full gap-2 rounded-full border border-white/50 bg-white/85 p-2 shadow-glow backdrop-blur sm:min-w-0">
-            {categories.map((category) => (
-              <a
-                key={category.id}
-                href={`#${category.slug}`}
-                onClick={() => setActiveSlug(category.slug)}
-                className={cn(
-                  "rounded-full px-4 py-2 text-sm font-medium text-coffee-800 transition",
-                  activeSlug === category.slug && !query
-                    ? "bg-coffee-800 text-white shadow-sm"
-                    : "bg-coffee-50 hover:bg-coffee-100"
-                )}
-              >
-                {category.name}
-              </a>
-            ))}
-          </div>
-        </div>
-
         <label className="relative block">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-coffee-600" />
           <Input
@@ -115,6 +95,26 @@ export function MenuExplorer({ categories }: MenuExplorerProps) {
             </button>
           ) : null}
         </label>
+
+        <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+          <div className="inline-flex min-w-full gap-2 rounded-full border border-white/50 bg-white/85 p-2 shadow-glow backdrop-blur sm:min-w-0">
+            {categories.map((category) => (
+              <a
+                key={category.id}
+                href={`#${category.slug}`}
+                onClick={() => setActiveSlug(category.slug)}
+                className={cn(
+                  "rounded-full px-4 py-2 text-sm font-medium text-coffee-800 transition",
+                  activeSlug === category.slug && !query
+                    ? "bg-coffee-800 text-white shadow-sm"
+                    : "bg-coffee-50 hover:bg-coffee-100"
+                )}
+              >
+                {category.name}
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
 
       {filteredCategories.length === 0 ? (
