@@ -41,31 +41,35 @@ export function MenuExplorer({ categories }: MenuExplorerProps) {
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntry = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    const updateActiveCategory = () => {
+      const activationOffset = 180;
+      let nextActiveSlug = categories[0]?.slug ?? "";
 
-        if (visibleEntry?.target.id) {
-          setActiveSlug(visibleEntry.target.id);
+      for (const category of categories) {
+        const element = document.getElementById(category.slug);
+
+        if (!element) {
+          continue;
         }
-      },
-      {
-        rootMargin: "-30% 0px -60% 0px",
-        threshold: [0.1, 0.25, 0.5]
+
+        const top = element.getBoundingClientRect().top;
+
+        if (top - activationOffset <= 0) {
+          nextActiveSlug = category.slug;
+        } else {
+          break;
+        }
       }
-    );
 
-    categories.forEach((category) => {
-      const element = document.getElementById(category.slug);
-
-      if (element) {
-        observer.observe(element);
+      if (nextActiveSlug) {
+        setActiveSlug(nextActiveSlug);
       }
-    });
+    };
 
-    return () => observer.disconnect();
+    updateActiveCategory();
+    window.addEventListener("scroll", updateActiveCategory, { passive: true });
+
+    return () => window.removeEventListener("scroll", updateActiveCategory);
   }, [categories, query]);
 
   return (
@@ -77,6 +81,7 @@ export function MenuExplorer({ categories }: MenuExplorerProps) {
               <a
                 key={category.id}
                 href={`#${category.slug}`}
+                onClick={() => setActiveSlug(category.slug)}
                 className={cn(
                   "rounded-full px-4 py-2 text-sm font-medium text-coffee-800 transition",
                   activeSlug === category.slug && !query
