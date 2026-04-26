@@ -35,10 +35,18 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name.slice(0, 1)}
           </div>
         )}
+        {product.badge ? (
+          <Badge
+            variant="secondary"
+            className="absolute right-3 top-3 border-white/70 bg-white/90 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-coffee-900 shadow-sm backdrop-blur"
+          >
+            {product.badge}
+          </Badge>
+        ) : null}
       </div>
 
       <div className="flex flex-1 flex-col gap-2.5 p-3 sm:p-4">
-        <h3 className="line-clamp-2 font-serif text-xl leading-[1.05] text-ink sm:text-2xl">
+        <h3 className="line-clamp-2 font-serif text-lg leading-[1.1] text-ink sm:text-[1.6rem]">
           {product.name}
         </h3>
 
@@ -52,15 +60,6 @@ export function ProductCard({ product }: ProductCardProps) {
             </Badge>
           ) : null}
         </div>
-
-        {product.badge ? (
-          <Badge
-            variant="secondary"
-            className="w-full justify-center whitespace-nowrap px-3 py-2 text-[11px] uppercase tracking-[0.16em]"
-          >
-            {product.badge}
-          </Badge>
-        ) : null}
 
         {product.description ? (
           <p className="line-clamp-3 text-sm leading-5 text-coffee-800/80">
