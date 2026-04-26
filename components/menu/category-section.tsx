@@ -24,7 +24,7 @@ export function CategorySection({ category }: CategorySectionProps) {
         ) : null}
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.28em] text-coffee-700/70">Menü kategorisi</p>
-          <h2 className="font-serif text-3xl text-ink sm:text-4xl">{category.name}</h2>
+          <h2 className="font-serif text-[2rem] text-ink sm:text-[2.35rem]">{category.name}</h2>
         </div>
       </div>
 

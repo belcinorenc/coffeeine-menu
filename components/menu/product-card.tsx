@@ -38,7 +38,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {product.badge ? (
           <Badge
             variant="secondary"
-            className="absolute right-3 top-3 border-white/70 bg-white/90 px-2.5 py-1 text-[10px] uppercase tracking-[0.14em] text-coffee-900 shadow-sm backdrop-blur"
+            className="absolute right-3 top-3 border-white/70 bg-white/90 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-coffee-900 shadow-sm backdrop-blur"
           >
             {product.badge}
           </Badge>
@@ -46,19 +46,19 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2.5 p-3 sm:p-4">
-        <h3 className="line-clamp-2 font-serif text-lg leading-[1.1] text-ink sm:text-[1.6rem]">
+        <h3 className="line-clamp-2 font-serif text-lg leading-[1.1] text-ink sm:text-xl">
           {product.name}
         </h3>
 
         <div className="flex items-center justify-between gap-2">
-          <p className="whitespace-nowrap rounded-full bg-oat px-3 py-1 text-sm font-semibold text-coffee-900">
-            {formatCurrency(product.price)}
-          </p>
           {!product.is_available ? (
             <Badge variant="muted" className="whitespace-nowrap">
               Stokta yok
             </Badge>
           ) : null}
+          <p className="ml-auto whitespace-nowrap rounded-full bg-oat px-3 py-1 text-sm font-semibold text-coffee-900">
+            {formatCurrency(product.price)}
+          </p>
         </div>
 
         {product.description ? (
