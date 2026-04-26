@@ -28,7 +28,7 @@ export function CategorySection({ category }: CategorySectionProps) {
         </div>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid grid-cols-2 gap-4 min-[720px]:grid-cols-3 xl:grid-cols-4">
         {category.products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
