@@ -3,6 +3,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { z } from "zod";
 
 import { isAllowedAdminEmail, isSupabaseConfigured } from "@/lib/env";
@@ -34,6 +35,12 @@ function getErrorMessage(error: unknown, fallbackMessage: string) {
   }
 
   return fallbackMessage;
+}
+
+function rethrowIfRedirectError(error: unknown) {
+  if (isRedirectError(error)) {
+    throw error;
+  }
 }
 
 const categorySchema = z.object({
@@ -221,6 +228,7 @@ export async function createCategoryAction(formData: FormData) {
     revalidatePath("/admin/categories");
     redirect(createFeedbackUrl(redirectPath, "success", "Kategori başarıyla eklendi."));
   } catch (error) {
+    rethrowIfRedirectError(error);
     redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Kategori eklenemedi.")));
   }
 }
@@ -256,6 +264,7 @@ export async function updateCategoryAction(formData: FormData) {
     revalidatePath("/admin/categories");
     redirect(createFeedbackUrl(redirectPath, "success", "Kategori güncellendi."));
   } catch (error) {
+    rethrowIfRedirectError(error);
     redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Kategori güncellenemedi.")));
   }
 }
@@ -278,6 +287,7 @@ export async function deleteCategoryAction(formData: FormData) {
     revalidatePath("/admin/products");
     redirect(createFeedbackUrl(redirectPath, "success", "Kategori silindi."));
   } catch (error) {
+    rethrowIfRedirectError(error);
     redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Kategori silinemedi.")));
   }
 }
@@ -326,6 +336,7 @@ export async function moveCategoryAction(formData: FormData) {
     revalidatePath("/admin/categories");
     redirect(createFeedbackUrl(redirectPath, "success", "Kategori sırası güncellendi."));
   } catch (error) {
+    rethrowIfRedirectError(error);
     redirect(
       createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Kategori sırası güncellenemedi."))
     );
@@ -368,6 +379,7 @@ export async function createProductAction(formData: FormData) {
     revalidatePath("/admin/products");
     redirect(createFeedbackUrl(redirectPath, "success", "Ürün başarıyla eklendi."));
   } catch (error) {
+    rethrowIfRedirectError(error);
     redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Ürün eklenemedi.")));
   }
 }
@@ -411,6 +423,7 @@ export async function updateProductAction(formData: FormData) {
     revalidatePath("/admin/products");
     redirect(createFeedbackUrl(redirectPath, "success", "Ürün güncellendi."));
   } catch (error) {
+    rethrowIfRedirectError(error);
     redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Ürün güncellenemedi.")));
   }
 }
@@ -432,6 +445,7 @@ export async function deleteProductAction(formData: FormData) {
     revalidatePath("/admin/products");
     redirect(createFeedbackUrl(redirectPath, "success", "Ürün silindi."));
   } catch (error) {
+    rethrowIfRedirectError(error);
     redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Ürün silinemedi.")));
   }
 }
@@ -482,6 +496,7 @@ export async function moveProductAction(formData: FormData) {
     revalidatePath("/admin/products");
     redirect(createFeedbackUrl(redirectPath, "success", "Ürün sırası güncellendi."));
   } catch (error) {
+    rethrowIfRedirectError(error);
     redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Ürün sırası güncellenemedi.")));
   }
 }
@@ -522,6 +537,7 @@ export async function updateSettingsAction(formData: FormData) {
     revalidatePath("/admin/settings");
     redirect(createFeedbackUrl(redirectPath, "success", "Ayarlar kaydedildi."));
   } catch (error) {
+    rethrowIfRedirectError(error);
     redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Ayarlar kaydedilemedi.")));
   }
 }
