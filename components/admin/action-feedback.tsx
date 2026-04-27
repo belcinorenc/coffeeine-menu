@@ -52,15 +52,24 @@ export function ActionFeedback({ status, message }: ActionFeedbackProps) {
       setIsAnimating(true);
     });
 
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [cleanedUrl, message, router, status]);
+
+  useEffect(() => {
+    if (!visible || !feedback.status || !feedback.message) {
+      return;
+    }
+
     const timeoutId = window.setTimeout(() => {
       setVisible(false);
     }, 3000);
 
     return () => {
-      window.cancelAnimationFrame(frameId);
       window.clearTimeout(timeoutId);
     };
-  }, [cleanedUrl, message, router, status]);
+  }, [feedback.message, feedback.status, visible]);
 
   useEffect(() => {
     if (!visible) {
