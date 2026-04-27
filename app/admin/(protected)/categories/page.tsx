@@ -1,17 +1,25 @@
 import { createCategoryAction, deleteCategoryAction, moveCategoryAction, updateCategoryAction } from "@/app/admin/actions";
+import { ActionFeedback } from "@/components/admin/action-feedback";
 import { ConfirmActionForm } from "@/components/admin/confirm-action-form";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { SetupNotice } from "@/components/admin/setup-notice";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getCategories } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/env";
 
-export default async function CategoriesPage() {
+export default async function CategoriesPage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const status = typeof params.status === "string" ? params.status : undefined;
+  const message = typeof params.message === "string" ? params.message : undefined;
   const categories = await getCategories();
 
   return (
@@ -26,12 +34,15 @@ export default async function CategoriesPage() {
 
       {!isSupabaseConfigured() ? <SetupNotice /> : null}
 
+      <ActionFeedback status={status} message={message} />
+
       <Card>
         <CardHeader>
           <CardTitle>Yeni kategori oluştur</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={createCategoryAction} className="grid gap-4 md:grid-cols-2">
+            <input type="hidden" name="redirect_to" value="/admin/categories" />
             <Field label="Kategori adı" name="name" placeholder="Sıcak Kahveler" required />
             <Field label="Kısa adres (slug)" name="slug" placeholder="sicak-kahveler" required />
             <ImageUploadField
@@ -46,9 +57,9 @@ export default async function CategoriesPage() {
                 <input type="checkbox" name="is_active" defaultChecked className="h-4 w-4 rounded" />
                 Yayında
               </label>
-              <Button type="submit" className="ml-auto">
+              <SubmitButton type="submit" className="ml-auto" pendingLabel="Ekleniyor...">
                 Kategori ekle
-              </Button>
+              </SubmitButton>
             </div>
           </form>
         </CardContent>
@@ -66,6 +77,7 @@ export default async function CategoriesPage() {
               <CardContent className="pt-6">
                 <form action={updateCategoryAction} className="grid gap-4 lg:grid-cols-2">
                   <input type="hidden" name="id" value={category.id} />
+                  <input type="hidden" name="redirect_to" value="/admin/categories" />
                   <Field label="Kategori adı" name="name" defaultValue={category.name} required />
                   <Field label="Kısa adres (slug)" name="slug" defaultValue={category.slug} required />
                   <ImageUploadField
@@ -92,32 +104,37 @@ export default async function CategoriesPage() {
                       />
                       Yayında
                     </label>
-                    <Button type="submit">Kaydet</Button>
+                    <SubmitButton type="submit" pendingLabel="Kaydediliyor...">
+                      Kaydet
+                    </SubmitButton>
                   </div>
                 </form>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <form action={moveCategoryAction}>
                     <input type="hidden" name="id" value={category.id} />
                     <input type="hidden" name="direction" value="up" />
-                    <Button type="submit" variant="outline" size="sm">
+                    <input type="hidden" name="redirect_to" value="/admin/categories" />
+                    <SubmitButton type="submit" variant="outline" size="sm" pendingLabel="Taşınıyor...">
                       Yukarı taşı
-                    </Button>
+                    </SubmitButton>
                   </form>
                   <form action={moveCategoryAction}>
                     <input type="hidden" name="id" value={category.id} />
                     <input type="hidden" name="direction" value="down" />
-                    <Button type="submit" variant="outline" size="sm">
+                    <input type="hidden" name="redirect_to" value="/admin/categories" />
+                    <SubmitButton type="submit" variant="outline" size="sm" pendingLabel="Taşınıyor...">
                       Aşağı taşı
-                    </Button>
+                    </SubmitButton>
                   </form>
                   <ConfirmActionForm
                     action={deleteCategoryAction}
                     message={`"${category.name}" kategorisi ve içindeki ürünler silinsin mi? Bu işlem geri alınamaz.`}
                   >
                     <input type="hidden" name="id" value={category.id} />
-                    <Button type="submit" variant="destructive" size="sm">
+                    <input type="hidden" name="redirect_to" value="/admin/categories" />
+                    <SubmitButton type="submit" variant="destructive" size="sm" pendingLabel="Siliniyor...">
                       Sil
-                    </Button>
+                    </SubmitButton>
                   </ConfirmActionForm>
                 </div>
               </CardContent>

@@ -5,9 +5,11 @@ import {
   updateProductAction
 } from "@/app/admin/actions";
 import { ChevronDown } from "lucide-react";
+import { ActionFeedback } from "@/components/admin/action-feedback";
 import { ConfirmActionForm } from "@/components/admin/confirm-action-form";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { SetupNotice } from "@/components/admin/setup-notice";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +30,20 @@ export default async function ProductsPage({
   const params = await searchParams;
   const search = typeof params.search === "string" ? params.search.toLowerCase() : "";
   const categoryFilter = typeof params.category === "string" ? params.category : "all";
+  const status = typeof params.status === "string" ? params.status : undefined;
+  const message = typeof params.message === "string" ? params.message : undefined;
+
+  const feedbackParams = new URLSearchParams();
+
+  if (search) {
+    feedbackParams.set("search", search);
+  }
+
+  if (categoryFilter !== "all") {
+    feedbackParams.set("category", categoryFilter);
+  }
+
+  const feedbackPath = `/admin/products${feedbackParams.toString() ? `?${feedbackParams.toString()}` : ""}`;
 
   const [categories, products] = await Promise.all([getCategories(), getProducts()]);
 
@@ -59,9 +75,7 @@ export default async function ProductsPage({
 
   const productGroups = [
     ...groupedProducts,
-    ...(uncategorizedProducts.length
-      ? [{ category: null, products: uncategorizedProducts }]
-      : [])
+    ...(uncategorizedProducts.length ? [{ category: null, products: uncategorizedProducts }] : [])
   ];
 
   return (
@@ -69,9 +83,9 @@ export default async function ProductsPage({
       <Card className="overflow-hidden">
         <CardContent className="grid gap-5 p-5 lg:grid-cols-[240px_1fr] lg:items-end">
           <div>
-              <Badge variant="secondary">Ürün yönetimi</Badge>
-              <h1 className="mt-2 font-serif text-3xl text-coffee-900">Ürünler</h1>
-              <p className="text-sm text-muted-foreground">{filteredProducts.length} ürün gösteriliyor</p>
+            <Badge variant="secondary">Ürün yönetimi</Badge>
+            <h1 className="mt-2 font-serif text-3xl text-coffee-900">Ürünler</h1>
+            <p className="text-sm text-muted-foreground">{filteredProducts.length} ürün gösteriliyor</p>
           </div>
 
           <form className="grid gap-3 md:grid-cols-[1fr_220px_auto]">
@@ -96,6 +110,8 @@ export default async function ProductsPage({
 
       {!isSupabaseConfigured() ? <SetupNotice /> : null}
 
+      <ActionFeedback status={status} message={message} />
+
       <details className="group overflow-hidden rounded-[28px] border border-coffee-200 bg-white/80 shadow-sm">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 transition hover:bg-coffee-50/70">
           <div>
@@ -109,6 +125,7 @@ export default async function ProductsPage({
         </summary>
         <div className="border-t border-coffee-100 p-5">
           <form action={createProductAction} className="grid gap-4 lg:grid-cols-2">
+            <input type="hidden" name="redirect_to" value={feedbackPath} />
             <TextField label="Ürün adı" name="name" placeholder="Spanish Latte" required />
             <SelectField
               label="Kategori"
@@ -150,9 +167,9 @@ export default async function ProductsPage({
                 <input type="checkbox" name="is_active" defaultChecked className="h-4 w-4 rounded" />
                 Yayında
               </label>
-              <Button type="submit" className="ml-auto">
+              <SubmitButton type="submit" className="ml-auto" pendingLabel="Ekleniyor...">
                 Ürün ekle
-              </Button>
+              </SubmitButton>
             </div>
           </form>
         </div>
@@ -166,15 +183,14 @@ export default async function ProductsPage({
       ) : (
         <div className="space-y-6">
           {productGroups.map((group) => (
-            <details key={group.category?.id ?? "uncategorized"} className="group rounded-[28px] border border-coffee-200 bg-white/70 shadow-sm">
+            <details
+              key={group.category?.id ?? "uncategorized"}
+              className="group rounded-[28px] border border-coffee-200 bg-white/70 shadow-sm"
+            >
               <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 px-5 py-4 transition hover:bg-coffee-50/70">
                 <div>
-                  <h2 className="font-serif text-2xl text-coffee-900">
-                    {group.category?.name ?? "Kategorisiz"}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {group.products.length} ürün
-                  </p>
+                  <h2 className="font-serif text-2xl text-coffee-900">{group.category?.name ?? "Kategorisiz"}</h2>
+                  <p className="text-sm text-muted-foreground">{group.products.length} ürün</p>
                 </div>
                 <span className="flex items-center gap-3">
                   <Badge variant="secondary">Menü sırasına göre</Badge>
@@ -184,7 +200,12 @@ export default async function ProductsPage({
 
               <div className="grid gap-4 border-t border-coffee-100 p-4">
                 {group.products.map((product) => (
-                  <ProductEditor key={product.id} product={product} categories={categories} />
+                  <ProductEditor
+                    key={product.id}
+                    product={product}
+                    categories={categories}
+                    redirectTo={feedbackPath}
+                  />
                 ))}
               </div>
             </details>
@@ -197,10 +218,12 @@ export default async function ProductsPage({
 
 function ProductEditor({
   product,
-  categories
+  categories,
+  redirectTo
 }: {
   product: ProductWithCategory;
   categories: Category[];
+  redirectTo: string;
 }) {
   return (
     <Card>
@@ -222,6 +245,7 @@ function ProductEditor({
       <CardContent>
         <form action={updateProductAction} className="grid gap-4 lg:grid-cols-2">
           <input type="hidden" name="id" value={product.id} />
+          <input type="hidden" name="redirect_to" value={redirectTo} />
           <TextField label="Ürün adı" name="name" defaultValue={product.name} required />
           <SelectField
             label="Kategori"
@@ -299,9 +323,9 @@ function ProductEditor({
               />
               Yayında
             </label>
-            <Button type="submit" className="ml-auto">
+            <SubmitButton type="submit" className="ml-auto" pendingLabel="Kaydediliyor...">
               Değişiklikleri kaydet
-            </Button>
+            </SubmitButton>
           </div>
         </form>
 
@@ -310,26 +334,26 @@ function ProductEditor({
             <input type="hidden" name="id" value={product.id} />
             <input type="hidden" name="category_id" value={product.category_id} />
             <input type="hidden" name="direction" value="up" />
-            <Button type="submit" variant="outline" size="sm">
+            <input type="hidden" name="redirect_to" value={redirectTo} />
+            <SubmitButton type="submit" variant="outline" size="sm" pendingLabel="Taşınıyor...">
               Yukarı taşı
-            </Button>
+            </SubmitButton>
           </form>
           <form action={moveProductAction}>
             <input type="hidden" name="id" value={product.id} />
             <input type="hidden" name="category_id" value={product.category_id} />
             <input type="hidden" name="direction" value="down" />
-            <Button type="submit" variant="outline" size="sm">
+            <input type="hidden" name="redirect_to" value={redirectTo} />
+            <SubmitButton type="submit" variant="outline" size="sm" pendingLabel="Taşınıyor...">
               Aşağı taşı
-            </Button>
+            </SubmitButton>
           </form>
-          <ConfirmActionForm
-            action={deleteProductAction}
-            message={`"${product.name}" silinsin mi? Bu işlem geri alınamaz.`}
-          >
+          <ConfirmActionForm action={deleteProductAction} message={`"${product.name}" silinsin mi? Bu işlem geri alınamaz.`}>
             <input type="hidden" name="id" value={product.id} />
-            <Button type="submit" variant="destructive" size="sm">
+            <input type="hidden" name="redirect_to" value={redirectTo} />
+            <SubmitButton type="submit" variant="destructive" size="sm" pendingLabel="Siliniyor...">
               Sil
-            </Button>
+            </SubmitButton>
           </ConfirmActionForm>
         </div>
       </CardContent>
@@ -369,7 +393,7 @@ function SelectField({
       <select
         id={name}
         name={name}
-        className="flex h-11 w-full rounded-2xl border border-coffee-200 bg-white/80 px-4 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coffee-500"
+        className="flex h-11 w-full rounded-2xl border border-coffee-200 bg-white/80 px-4 py-2 text-sm text-foreground shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-coffee-500 hover:border-coffee-300 hover:shadow-md"
         {...props}
       >
         {options.map((option) => (

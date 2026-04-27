@@ -14,6 +14,28 @@ function refreshPublicMenuCache() {
   revalidatePath("/");
 }
 
+function createFeedbackUrl(path: string, status: "success" | "error", message: string) {
+  const params = new URLSearchParams({ status, message });
+  return `${path}?${params.toString()}`;
+}
+
+function getAdminRedirectPath(formData: FormData, fallbackPath: string) {
+  const redirectTo = String(formData.get("redirect_to") ?? "").trim();
+  return redirectTo.startsWith("/admin") ? redirectTo : fallbackPath;
+}
+
+function getErrorMessage(error: unknown, fallbackMessage: string) {
+  if (error instanceof z.ZodError) {
+    return error.issues[0]?.message ?? fallbackMessage;
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return fallbackMessage;
+}
+
 const categorySchema = z.object({
   name: z.string().min(2),
   slug: z.string().min(2),
@@ -172,218 +194,334 @@ export async function signOutAction() {
 }
 
 export async function createCategoryAction(formData: FormData) {
-  const supabase = await getSupabaseOrThrow();
+  const redirectPath = getAdminRedirectPath(formData, "/admin/categories");
 
-  const payload = categorySchema.parse({
-    name: formData.get("name"),
-    slug: formData.get("slug") || toSlug(String(formData.get("name") ?? "")),
-    image_url: formData.get("image_url"),
-    sort_order: formData.get("sort_order"),
-    is_active: parseCheckbox(formData, "is_active")
-  });
+  try {
+    const supabase = await getSupabaseOrThrow();
 
-  await supabase.from("categories").insert({
-    ...payload,
-    image_url: payload.image_url || null
-  });
-  refreshPublicMenuCache();
-  revalidatePath("/admin");
-  revalidatePath("/admin/categories");
+    const payload = categorySchema.parse({
+      name: formData.get("name"),
+      slug: formData.get("slug") || toSlug(String(formData.get("name") ?? "")),
+      image_url: formData.get("image_url"),
+      sort_order: formData.get("sort_order"),
+      is_active: parseCheckbox(formData, "is_active")
+    });
+
+    const { error } = await supabase.from("categories").insert({
+      ...payload,
+      image_url: payload.image_url || null
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    refreshPublicMenuCache();
+    revalidatePath("/admin");
+    revalidatePath("/admin/categories");
+    redirect(createFeedbackUrl(redirectPath, "success", "Kategori başarıyla eklendi."));
+  } catch (error) {
+    redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Kategori eklenemedi.")));
+  }
 }
 
 export async function updateCategoryAction(formData: FormData) {
-  const supabase = await getSupabaseOrThrow();
-  const id = String(formData.get("id"));
+  const redirectPath = getAdminRedirectPath(formData, "/admin/categories");
 
-  const payload = categorySchema.parse({
-    name: formData.get("name"),
-    slug: formData.get("slug") || toSlug(String(formData.get("name") ?? "")),
-    image_url: formData.get("image_url"),
-    sort_order: formData.get("sort_order"),
-    is_active: parseCheckbox(formData, "is_active")
-  });
+  try {
+    const supabase = await getSupabaseOrThrow();
+    const id = String(formData.get("id"));
 
-  await supabase.from("categories").update({
-    ...payload,
-    image_url: payload.image_url || null
-  }).eq("id", id);
-  refreshPublicMenuCache();
-  revalidatePath("/admin/categories");
+    const payload = categorySchema.parse({
+      name: formData.get("name"),
+      slug: formData.get("slug") || toSlug(String(formData.get("name") ?? "")),
+      image_url: formData.get("image_url"),
+      sort_order: formData.get("sort_order"),
+      is_active: parseCheckbox(formData, "is_active")
+    });
+
+    const { error } = await supabase
+      .from("categories")
+      .update({
+        ...payload,
+        image_url: payload.image_url || null
+      })
+      .eq("id", id);
+
+    if (error) {
+      throw error;
+    }
+
+    refreshPublicMenuCache();
+    revalidatePath("/admin/categories");
+    redirect(createFeedbackUrl(redirectPath, "success", "Kategori güncellendi."));
+  } catch (error) {
+    redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Kategori güncellenemedi.")));
+  }
 }
 
 export async function deleteCategoryAction(formData: FormData) {
-  const supabase = await getSupabaseOrThrow();
-  const id = String(formData.get("id"));
+  const redirectPath = getAdminRedirectPath(formData, "/admin/categories");
 
-  await supabase.from("categories").delete().eq("id", id);
-  refreshPublicMenuCache();
-  revalidatePath("/admin/categories");
-  revalidatePath("/admin/products");
+  try {
+    const supabase = await getSupabaseOrThrow();
+    const id = String(formData.get("id"));
+
+    const { error } = await supabase.from("categories").delete().eq("id", id);
+
+    if (error) {
+      throw error;
+    }
+
+    refreshPublicMenuCache();
+    revalidatePath("/admin/categories");
+    revalidatePath("/admin/products");
+    redirect(createFeedbackUrl(redirectPath, "success", "Kategori silindi."));
+  } catch (error) {
+    redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Kategori silinemedi.")));
+  }
 }
 
 export async function moveCategoryAction(formData: FormData) {
-  const supabase = await getSupabaseOrThrow();
-  const id = String(formData.get("id"));
-  const direction = String(formData.get("direction"));
+  const redirectPath = getAdminRedirectPath(formData, "/admin/categories");
 
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("id, sort_order")
-    .order("sort_order", { ascending: true });
+  try {
+    const supabase = await getSupabaseOrThrow();
+    const id = String(formData.get("id"));
+    const direction = String(formData.get("direction"));
 
-  if (!categories) {
-    return;
+    const { data: categories, error } = await supabase
+      .from("categories")
+      .select("id, sort_order")
+      .order("sort_order", { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!categories) {
+      throw new Error("Kategori sırası alınamadı.");
+    }
+
+    const index = categories.findIndex((category) => category.id === id);
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+
+    if (index < 0 || swapIndex < 0 || swapIndex >= categories.length) {
+      throw new Error("Kategori daha fazla taşınamıyor.");
+    }
+
+    const current = categories[index];
+    const target = categories[swapIndex];
+
+    const [currentResult, targetResult] = await Promise.all([
+      supabase.from("categories").update({ sort_order: target.sort_order }).eq("id", current.id),
+      supabase.from("categories").update({ sort_order: current.sort_order }).eq("id", target.id)
+    ]);
+
+    if (currentResult.error || targetResult.error) {
+      throw currentResult.error ?? targetResult.error;
+    }
+
+    refreshPublicMenuCache();
+    revalidatePath("/admin/categories");
+    redirect(createFeedbackUrl(redirectPath, "success", "Kategori sırası güncellendi."));
+  } catch (error) {
+    redirect(
+      createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Kategori sırası güncellenemedi."))
+    );
   }
-
-  const index = categories.findIndex((category) => category.id === id);
-  const swapIndex = direction === "up" ? index - 1 : index + 1;
-
-  if (index < 0 || swapIndex < 0 || swapIndex >= categories.length) {
-    return;
-  }
-
-  const current = categories[index];
-  const target = categories[swapIndex];
-
-  await Promise.all([
-    supabase.from("categories").update({ sort_order: target.sort_order }).eq("id", current.id),
-    supabase.from("categories").update({ sort_order: current.sort_order }).eq("id", target.id)
-  ]);
-
-  refreshPublicMenuCache();
-  revalidatePath("/admin/categories");
 }
 
 export async function createProductAction(formData: FormData) {
-  const supabase = await getSupabaseOrThrow();
+  const redirectPath = getAdminRedirectPath(formData, "/admin/products");
 
-  const payload = productSchema.parse({
-    category_id: formData.get("category_id"),
-    name: formData.get("name"),
-    description: formData.get("description"),
-    product_options: formData.get("product_options"),
-    price: formData.get("price"),
-    image_url: formData.get("image_url"),
-    badge: formData.get("badge"),
-    is_available: parseCheckbox(formData, "is_available"),
-    is_active: parseCheckbox(formData, "is_active"),
-    sort_order: formData.get("sort_order")
-  });
+  try {
+    const supabase = await getSupabaseOrThrow();
 
-  await supabase.from("products").insert({
-    ...payload,
-    description: payload.description || null,
-    product_options: payload.product_options || null,
-    image_url: payload.image_url || null,
-    badge: payload.badge || null
-  });
-  refreshPublicMenuCache();
-  revalidatePath("/admin");
-  revalidatePath("/admin/products");
-}
+    const payload = productSchema.parse({
+      category_id: formData.get("category_id"),
+      name: formData.get("name"),
+      description: formData.get("description"),
+      product_options: formData.get("product_options"),
+      price: formData.get("price"),
+      image_url: formData.get("image_url"),
+      badge: formData.get("badge"),
+      is_available: parseCheckbox(formData, "is_available"),
+      is_active: parseCheckbox(formData, "is_active"),
+      sort_order: formData.get("sort_order")
+    });
 
-export async function updateProductAction(formData: FormData) {
-  const supabase = await getSupabaseOrThrow();
-  const id = String(formData.get("id"));
-
-  const payload = productSchema.parse({
-    category_id: formData.get("category_id"),
-    name: formData.get("name"),
-    description: formData.get("description"),
-    product_options: formData.get("product_options"),
-    price: formData.get("price"),
-    image_url: formData.get("image_url"),
-    badge: formData.get("badge"),
-    is_available: parseCheckbox(formData, "is_available"),
-    is_active: parseCheckbox(formData, "is_active"),
-    sort_order: formData.get("sort_order")
-  });
-
-  await supabase
-    .from("products")
-    .update({
+    const { error } = await supabase.from("products").insert({
       ...payload,
       description: payload.description || null,
       product_options: payload.product_options || null,
       image_url: payload.image_url || null,
       badge: payload.badge || null
-    })
-    .eq("id", id);
+    });
 
-  refreshPublicMenuCache();
-  revalidatePath("/admin/products");
+    if (error) {
+      throw error;
+    }
+
+    refreshPublicMenuCache();
+    revalidatePath("/admin");
+    revalidatePath("/admin/products");
+    redirect(createFeedbackUrl(redirectPath, "success", "Ürün başarıyla eklendi."));
+  } catch (error) {
+    redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Ürün eklenemedi.")));
+  }
+}
+
+export async function updateProductAction(formData: FormData) {
+  const redirectPath = getAdminRedirectPath(formData, "/admin/products");
+
+  try {
+    const supabase = await getSupabaseOrThrow();
+    const id = String(formData.get("id"));
+
+    const payload = productSchema.parse({
+      category_id: formData.get("category_id"),
+      name: formData.get("name"),
+      description: formData.get("description"),
+      product_options: formData.get("product_options"),
+      price: formData.get("price"),
+      image_url: formData.get("image_url"),
+      badge: formData.get("badge"),
+      is_available: parseCheckbox(formData, "is_available"),
+      is_active: parseCheckbox(formData, "is_active"),
+      sort_order: formData.get("sort_order")
+    });
+
+    const { error } = await supabase
+      .from("products")
+      .update({
+        ...payload,
+        description: payload.description || null,
+        product_options: payload.product_options || null,
+        image_url: payload.image_url || null,
+        badge: payload.badge || null
+      })
+      .eq("id", id);
+
+    if (error) {
+      throw error;
+    }
+
+    refreshPublicMenuCache();
+    revalidatePath("/admin/products");
+    redirect(createFeedbackUrl(redirectPath, "success", "Ürün güncellendi."));
+  } catch (error) {
+    redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Ürün güncellenemedi.")));
+  }
 }
 
 export async function deleteProductAction(formData: FormData) {
-  const supabase = await getSupabaseOrThrow();
-  const id = String(formData.get("id"));
+  const redirectPath = getAdminRedirectPath(formData, "/admin/products");
 
-  await supabase.from("products").delete().eq("id", id);
-  refreshPublicMenuCache();
-  revalidatePath("/admin/products");
+  try {
+    const supabase = await getSupabaseOrThrow();
+    const id = String(formData.get("id"));
+
+    const { error } = await supabase.from("products").delete().eq("id", id);
+
+    if (error) {
+      throw error;
+    }
+
+    refreshPublicMenuCache();
+    revalidatePath("/admin/products");
+    redirect(createFeedbackUrl(redirectPath, "success", "Ürün silindi."));
+  } catch (error) {
+    redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Ürün silinemedi.")));
+  }
 }
 
 export async function moveProductAction(formData: FormData) {
-  const supabase = await getSupabaseOrThrow();
-  const id = String(formData.get("id"));
-  const direction = String(formData.get("direction"));
-  const categoryId = String(formData.get("category_id"));
+  const redirectPath = getAdminRedirectPath(formData, "/admin/products");
 
-  const { data: products } = await supabase
-    .from("products")
-    .select("id, sort_order")
-    .eq("category_id", categoryId)
-    .order("sort_order", { ascending: true });
+  try {
+    const supabase = await getSupabaseOrThrow();
+    const id = String(formData.get("id"));
+    const direction = String(formData.get("direction"));
+    const categoryId = String(formData.get("category_id"));
 
-  if (!products) {
-    return;
+    const { data: products, error } = await supabase
+      .from("products")
+      .select("id, sort_order")
+      .eq("category_id", categoryId)
+      .order("sort_order", { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!products) {
+      throw new Error("Ürün sırası alınamadı.");
+    }
+
+    const index = products.findIndex((product) => product.id === id);
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+
+    if (index < 0 || swapIndex < 0 || swapIndex >= products.length) {
+      throw new Error("Ürün daha fazla taşınamıyor.");
+    }
+
+    const current = products[index];
+    const target = products[swapIndex];
+
+    const [currentResult, targetResult] = await Promise.all([
+      supabase.from("products").update({ sort_order: target.sort_order }).eq("id", current.id),
+      supabase.from("products").update({ sort_order: current.sort_order }).eq("id", target.id)
+    ]);
+
+    if (currentResult.error || targetResult.error) {
+      throw currentResult.error ?? targetResult.error;
+    }
+
+    refreshPublicMenuCache();
+    revalidatePath("/admin/products");
+    redirect(createFeedbackUrl(redirectPath, "success", "Ürün sırası güncellendi."));
+  } catch (error) {
+    redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Ürün sırası güncellenemedi.")));
   }
-
-  const index = products.findIndex((product) => product.id === id);
-  const swapIndex = direction === "up" ? index - 1 : index + 1;
-
-  if (index < 0 || swapIndex < 0 || swapIndex >= products.length) {
-    return;
-  }
-
-  const current = products[index];
-  const target = products[swapIndex];
-
-  await Promise.all([
-    supabase.from("products").update({ sort_order: target.sort_order }).eq("id", current.id),
-    supabase.from("products").update({ sort_order: current.sort_order }).eq("id", target.id)
-  ]);
-
-  refreshPublicMenuCache();
-  revalidatePath("/admin/products");
 }
 
 export async function updateSettingsAction(formData: FormData) {
-  const supabase = await getSupabaseOrThrow();
+  const redirectPath = getAdminRedirectPath(formData, "/admin/settings");
 
-  const payload = settingsSchema.parse({
-    cafe_name: formData.get("cafe_name"),
-    logo_url: formData.get("logo_url"),
-    hero_title: formData.get("hero_title"),
-    hero_subtitle: formData.get("hero_subtitle"),
-    instagram_url: formData.get("instagram_url"),
-    phone: formData.get("phone"),
-    address: formData.get("address"),
-    working_hours: formData.get("working_hours")
-  });
+  try {
+    const supabase = await getSupabaseOrThrow();
 
-  await supabase.from("settings").upsert(
-    {
-      id: 1,
-      ...payload,
-      logo_url: payload.logo_url || null,
-      instagram_url: payload.instagram_url || null
-    },
-    { onConflict: "id" }
-  );
+    const payload = settingsSchema.parse({
+      cafe_name: formData.get("cafe_name"),
+      logo_url: formData.get("logo_url"),
+      hero_title: formData.get("hero_title"),
+      hero_subtitle: formData.get("hero_subtitle"),
+      instagram_url: formData.get("instagram_url"),
+      phone: formData.get("phone"),
+      address: formData.get("address"),
+      working_hours: formData.get("working_hours")
+    });
 
-  refreshPublicMenuCache();
-  revalidatePath("/admin");
-  revalidatePath("/admin/settings");
-  redirect("/admin/settings?saved=1");
+    const { error } = await supabase.from("settings").upsert(
+      {
+        id: 1,
+        ...payload,
+        logo_url: payload.logo_url || null,
+        instagram_url: payload.instagram_url || null
+      },
+      { onConflict: "id" }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    refreshPublicMenuCache();
+    revalidatePath("/admin");
+    revalidatePath("/admin/settings");
+    redirect(createFeedbackUrl(redirectPath, "success", "Ayarlar kaydedildi."));
+  } catch (error) {
+    redirect(createFeedbackUrl(redirectPath, "error", getErrorMessage(error, "Ayarlar kaydedilemedi.")));
+  }
 }

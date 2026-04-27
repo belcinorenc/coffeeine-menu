@@ -1,8 +1,9 @@
 import { updateSettingsAction } from "@/app/admin/actions";
+import { ActionFeedback } from "@/components/admin/action-feedback";
 import { ImageUploadField } from "@/components/admin/image-upload-field";
 import { SetupNotice } from "@/components/admin/setup-notice";
+import { SubmitButton } from "@/components/admin/submit-button";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +17,8 @@ export default async function SettingsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const isSaved = params.saved === "1";
+  const status = typeof params.status === "string" ? params.status : undefined;
+  const message = typeof params.message === "string" ? params.message : undefined;
   const settings = await getSettings();
 
   return (
@@ -31,11 +33,7 @@ export default async function SettingsPage({
 
       {!isSupabaseConfigured() ? <SetupNotice /> : null}
 
-      {isSaved ? (
-        <div className="rounded-[24px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800 shadow-sm">
-          Kaydedildi. Değişiklikler menüde kısa süre içinde görünecek.
-        </div>
-      ) : null}
+      <ActionFeedback status={status} message={message} />
 
       <Card>
         <CardHeader>
@@ -43,6 +41,7 @@ export default async function SettingsPage({
         </CardHeader>
         <CardContent>
           <form action={updateSettingsAction} className="grid gap-4 lg:grid-cols-2">
+            <input type="hidden" name="redirect_to" value="/admin/settings" />
             <Field label="Cafe adı" name="cafe_name" defaultValue={settings.cafe_name} required />
             <ImageUploadField
               label="Logo"
@@ -64,12 +63,13 @@ export default async function SettingsPage({
               <Textarea id="address" name="address" defaultValue={settings.address ?? ""} />
             </div>
             <div className="lg:col-span-2 flex justify-end">
-              <Button
+              <SubmitButton
                 type="submit"
                 className="shadow-sm transition hover:-translate-y-0.5 hover:bg-coffee-900 hover:shadow-glow active:translate-y-0"
+                pendingLabel="Kaydediliyor..."
               >
                 Ayarları kaydet
-              </Button>
+              </SubmitButton>
             </div>
           </form>
         </CardContent>
