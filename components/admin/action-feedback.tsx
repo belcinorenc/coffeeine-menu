@@ -12,6 +12,9 @@ interface ActionFeedbackProps {
 }
 
 export function ActionFeedback({ status, message }: ActionFeedbackProps) {
+  const [feedback, setFeedback] = useState<ActionFeedbackProps>(
+    status && message ? { status, message } : {}
+  );
   const [visible, setVisible] = useState(Boolean(status && message));
   const pathname = usePathname();
   const router = useRouter();
@@ -31,24 +34,25 @@ export function ActionFeedback({ status, message }: ActionFeedbackProps) {
       return;
     }
 
+    setFeedback({ status, message });
     setVisible(true);
     router.replace(cleanedUrl, { scroll: false });
 
     const timeoutId = window.setTimeout(() => {
       setVisible(false);
-    }, 4500);
+    }, 5000);
 
     return () => window.clearTimeout(timeoutId);
   }, [cleanedUrl, message, router, status]);
 
-  if (!status || !message || !visible) {
+  if (!feedback.status || !feedback.message || !visible) {
     return null;
   }
 
-  const isSuccess = status === "success";
+  const isSuccess = feedback.status === "success";
 
   return (
-    <div className="pointer-events-none fixed right-4 top-4 z-50 w-full max-w-sm sm:right-6 sm:top-6">
+    <div className="pointer-events-none fixed bottom-4 right-4 z-50 w-full max-w-sm sm:bottom-6 sm:right-6">
       <div
         className={
           isSuccess
@@ -62,7 +66,7 @@ export function ActionFeedback({ status, message }: ActionFeedbackProps) {
           {isSuccess ? <CheckCircle2 className="h-5 w-5" /> : <CircleAlert className="h-5 w-5" />}
         </div>
 
-        <p className="flex-1 pr-2 leading-6">{message}</p>
+        <p className="flex-1 pr-2 leading-6">{feedback.message}</p>
 
         <Button
           type="button"
