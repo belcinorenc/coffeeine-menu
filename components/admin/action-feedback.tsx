@@ -16,6 +16,7 @@ export function ActionFeedback({ status, message }: ActionFeedbackProps) {
     status && message ? { status, message } : {}
   );
   const [visible, setVisible] = useState(Boolean(status && message));
+  const [isAnimating, setIsAnimating] = useState(false);
   const lastToastKeyRef = useRef<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -44,19 +45,28 @@ export function ActionFeedback({ status, message }: ActionFeedbackProps) {
     lastToastKeyRef.current = toastKey;
     setFeedback({ status, message });
     setVisible(true);
+    setIsAnimating(false);
     router.replace(cleanedUrl, { scroll: false });
+
+    const frameId = window.requestAnimationFrame(() => {
+      setIsAnimating(true);
+    });
 
     const timeoutId = window.setTimeout(() => {
       setVisible(false);
-    }, 5000);
+    }, 3000);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.clearTimeout(timeoutId);
+    };
   }, [cleanedUrl, message, router, status]);
 
   useEffect(() => {
     if (!visible) {
       setFeedback({});
       lastToastKeyRef.current = null;
+      setIsAnimating(false);
     }
   }, [visible]);
 
@@ -71,28 +81,40 @@ export function ActionFeedback({ status, message }: ActionFeedbackProps) {
       <div
         className={
           isSuccess
-            ? "pointer-events-auto flex items-start gap-3 rounded-[24px] border border-emerald-200 bg-white/95 px-4 py-4 text-sm font-medium text-emerald-800 shadow-lg shadow-emerald-100/70 backdrop-blur transition-all"
-            : "pointer-events-auto flex items-start gap-3 rounded-[24px] border border-red-200 bg-white/95 px-4 py-4 text-sm font-medium text-red-800 shadow-lg shadow-red-100/70 backdrop-blur transition-all"
+            ? "pointer-events-auto relative overflow-hidden rounded-[24px] border border-emerald-200 bg-white/95 px-4 py-4 text-sm font-medium text-emerald-800 shadow-lg shadow-emerald-100/70 backdrop-blur transition-all"
+            : "pointer-events-auto relative overflow-hidden rounded-[24px] border border-red-200 bg-white/95 px-4 py-4 text-sm font-medium text-red-800 shadow-lg shadow-red-100/70 backdrop-blur transition-all"
         }
         role="status"
         aria-live="polite"
       >
-        <div className="mt-0.5 shrink-0">
-          {isSuccess ? <CheckCircle2 className="h-5 w-5" /> : <CircleAlert className="h-5 w-5" />}
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 shrink-0">
+            {isSuccess ? <CheckCircle2 className="h-5 w-5" /> : <CircleAlert className="h-5 w-5" />}
+          </div>
+
+          <p className="flex-1 pr-2 leading-6">{feedback.message}</p>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0 rounded-full"
+            onClick={() => setVisible(false)}
+            aria-label="Mesajı kapat"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
 
-        <p className="flex-1 pr-2 leading-6">{feedback.message}</p>
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 shrink-0 rounded-full"
-          onClick={() => setVisible(false)}
-          aria-label="Mesajı kapat"
-        >
-          <X className="h-4 w-4" />
-        </Button>
+        <div className="absolute inset-x-0 bottom-0 h-1 bg-black/5">
+          <div
+            className={isSuccess ? "h-full bg-emerald-500/70" : "h-full bg-red-500/70"}
+            style={{
+              width: isAnimating ? "0%" : "100%",
+              transition: "width 3000ms linear"
+            }}
+          />
+        </div>
       </div>
     </div>
   );
