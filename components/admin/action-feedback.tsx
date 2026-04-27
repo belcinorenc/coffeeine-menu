@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, CircleAlert, X } from "lucide-react";
 
@@ -16,6 +16,7 @@ export function ActionFeedback({ status, message }: ActionFeedbackProps) {
     status && message ? { status, message } : {}
   );
   const [visible, setVisible] = useState(Boolean(status && message));
+  const lastToastKeyRef = useRef<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -34,6 +35,13 @@ export function ActionFeedback({ status, message }: ActionFeedbackProps) {
       return;
     }
 
+    const toastKey = `${status}:${message}`;
+
+    if (lastToastKeyRef.current === toastKey) {
+      return;
+    }
+
+    lastToastKeyRef.current = toastKey;
     setFeedback({ status, message });
     setVisible(true);
     router.replace(cleanedUrl, { scroll: false });
@@ -44,6 +52,13 @@ export function ActionFeedback({ status, message }: ActionFeedbackProps) {
 
     return () => window.clearTimeout(timeoutId);
   }, [cleanedUrl, message, router, status]);
+
+  useEffect(() => {
+    if (!visible) {
+      setFeedback({});
+      lastToastKeyRef.current = null;
+    }
+  }, [visible]);
 
   if (!feedback.status || !feedback.message || !visible) {
     return null;
