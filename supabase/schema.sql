@@ -143,6 +143,7 @@ drop policy if exists "Public can read Coffeeine media" on storage.objects;
 create policy "Public can read Coffeeine media"
 on storage.objects
 for select
+to public
 using (bucket_id = 'coffeeine-media');
 
 drop policy if exists "Authenticated can upload Coffeeine media" on storage.objects;
@@ -150,22 +151,34 @@ create policy "Authenticated can upload Coffeeine media"
 on storage.objects
 for insert
 to authenticated
-with check (bucket_id = 'coffeeine-media');
+with check (
+  bucket_id = 'coffeeine-media'
+  and auth.role() = 'authenticated'
+);
 
 drop policy if exists "Authenticated can update Coffeeine media" on storage.objects;
 create policy "Authenticated can update Coffeeine media"
 on storage.objects
 for update
 to authenticated
-using (bucket_id = 'coffeeine-media')
-with check (bucket_id = 'coffeeine-media');
+using (
+  bucket_id = 'coffeeine-media'
+  and auth.role() = 'authenticated'
+)
+with check (
+  bucket_id = 'coffeeine-media'
+  and auth.role() = 'authenticated'
+);
 
 drop policy if exists "Authenticated can delete Coffeeine media" on storage.objects;
 create policy "Authenticated can delete Coffeeine media"
 on storage.objects
 for delete
 to authenticated
-using (bucket_id = 'coffeeine-media');
+using (
+  bucket_id = 'coffeeine-media'
+  and auth.role() = 'authenticated'
+);
 
 comment on table public.categories is 'Coffeeine menu categories.';
 comment on table public.products is 'Coffeeine menu products linked to categories.';
