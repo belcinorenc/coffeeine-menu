@@ -1,7 +1,6 @@
 import Image from "next/image";
 
 import { ProductCard } from "@/components/menu/product-card";
-import { resolveMediaUrl } from "@/lib/media";
 import type { MenuCategory } from "@/lib/types";
 
 interface CategorySectionProps {
@@ -9,15 +8,13 @@ interface CategorySectionProps {
 }
 
 export function CategorySection({ category }: CategorySectionProps) {
-  const categoryImageUrl = resolveMediaUrl(category.image_url);
-
   return (
     <section id={category.slug} className="scroll-mt-28 space-y-5">
       <div className="flex items-center gap-4">
-        {categoryImageUrl ? (
+        {category.image_url ? (
           <div className="relative h-16 w-16 overflow-hidden rounded-[22px] bg-coffee-100 shadow-sm">
             <Image
-              src={categoryImageUrl}
+              src={category.image_url}
               alt=""
               fill
               className="object-cover"

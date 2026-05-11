@@ -1,7 +1,6 @@
 import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
-import { resolveMediaUrl } from "@/lib/media";
 import { formatCurrency } from "@/lib/utils";
 import type { Product } from "@/lib/types";
 
@@ -11,7 +10,6 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const isUnavailable = !product.is_available;
-  const productImageUrl = resolveMediaUrl(product.image_url);
   const optionItems = (product.product_options ?? "")
     .split(/\r?\n|,/)
     .map((item) => item.trim())
@@ -24,9 +22,9 @@ export function ProductCard({ product }: ProductCardProps) {
       }`}
     >
       <div className="relative aspect-[6/5] w-full overflow-hidden bg-gradient-to-br from-coffee-100 to-oat">
-        {productImageUrl ? (
+        {product.image_url ? (
           <Image
-            src={productImageUrl}
+            src={product.image_url}
             alt={product.name}
             fill
             sizes="(max-width: 719px) 50vw, (max-width: 1279px) 33vw, 25vw"
