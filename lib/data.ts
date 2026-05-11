@@ -11,6 +11,11 @@ import type { Category, ProductWithCategory, PublicMenuData, Settings } from "@/
 const fallbackSettings = demoMenuData.settings;
 const PUBLIC_MENU_REVALIDATE_SECONDS = 60;
 
+function normalizeAssetUrl(value?: string | null) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
 async function requireSupabase() {
   const supabase = await createServerSupabaseClient();
 
@@ -88,10 +93,20 @@ const getCachedPublicMenuData = unstable_cache(
     }
 
     return {
-      settings: settings ?? fallbackSettings,
+      settings: settings
+        ? {
+            ...settings,
+            logo_url: normalizeAssetUrl(settings.logo_url)
+          }
+        : fallbackSettings,
       categories: categories.map((category) => ({
         ...category,
+        image_url: normalizeAssetUrl(category.image_url),
         products: (category.products ?? []).filter((product) => product.is_active)
+          .map((product) => ({
+            ...product,
+            image_url: normalizeAssetUrl(product.image_url)
+          }))
       }))
     };
   },
@@ -143,7 +158,10 @@ export async function getCategories(): Promise<Category[]> {
     .order("sort_order", { ascending: true });
 
   if (result.data) {
-    return result.data;
+    return result.data.map((category) => ({
+      ...category,
+      image_url: normalizeAssetUrl(category.image_url)
+    }));
   }
 
   if (result.error?.message.includes("image_url")) {
@@ -168,6 +186,7 @@ export async function getProducts(): Promise<ProductWithCategory[]> {
     return demoMenuData.categories.flatMap((category) =>
       category.products.map((product) => ({
         ...product,
+        image_url: normalizeAssetUrl(product.image_url),
         category: {
           id: category.id,
           name: category.name,
@@ -187,7 +206,16 @@ export async function getProducts(): Promise<ProductWithCategory[]> {
     .order("sort_order", { ascending: true });
 
   if (result.data) {
-    return (result.data as unknown as ProductWithCategory[] | null) ?? [];
+    return ((result.data as unknown as ProductWithCategory[] | null) ?? []).map((product) => ({
+      ...product,
+      image_url: normalizeAssetUrl(product.image_url),
+      category: product.category
+        ? {
+            ...product.category,
+            image_url: normalizeAssetUrl(product.category.image_url)
+          }
+        : null
+    }));
   }
 
   if (
@@ -227,7 +255,12 @@ export async function getSettings(): Promise<Settings> {
     .eq("id", 1)
     .single();
 
-  return data ?? fallbackSettings;
+  return data
+    ? {
+        ...data,
+        logo_url: normalizeAssetUrl(data.logo_url)
+      }
+    : fallbackSettings;
 }
 
 export { PUBLIC_MENU_REVALIDATE_SECONDS };

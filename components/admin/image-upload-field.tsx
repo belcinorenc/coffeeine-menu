@@ -134,7 +134,7 @@ export function ImageUploadField({
       <div className="grid gap-3 rounded-[24px] border border-coffee-200 bg-coffee-50/50 p-3 sm:grid-cols-[96px_1fr]">
         <div className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-2xl bg-white text-coffee-700 sm:w-24">
           {canPreview ? (
-            <Image src={value} alt="" fill className="object-cover" sizes="96px" />
+            <Image src={value} alt="" fill className="object-cover" sizes="96px" unoptimized />
           ) : (
             <ImagePlus className="h-7 w-7" />
           )}

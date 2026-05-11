@@ -25,6 +25,7 @@ export function CafeFooter({ settings }: CafeFooterProps) {
                   alt={settings.cafe_name}
                   fill
                   sizes="48px"
+                  unoptimized
                   className="object-cover"
                 />
               ) : (

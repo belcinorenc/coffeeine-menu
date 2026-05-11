@@ -35,7 +35,14 @@ export function AdminShell({
           <div className="flex items-center gap-3">
             <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-coffee-800 font-serif text-xl text-white">
               {logoUrl ? (
-                <Image src={logoUrl} alt={cafeName} fill className="object-cover" sizes="48px" />
+                <Image
+                  src={logoUrl}
+                  alt={cafeName}
+                  fill
+                  className="object-cover"
+                  sizes="48px"
+                  unoptimized
+                />
               ) : (
                 cafeName.slice(0, 1)
               )}

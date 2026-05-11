@@ -22,6 +22,7 @@ export function Hero({ settings }: HeroProps) {
               fill
               sizes="(max-width: 640px) 80px, 96px"
               quality={100}
+              unoptimized
               className="object-contain p-2"
             />
           ) : (

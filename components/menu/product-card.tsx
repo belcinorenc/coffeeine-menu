@@ -28,6 +28,7 @@ export function ProductCard({ product }: ProductCardProps) {
             alt={product.name}
             fill
             sizes="(max-width: 719px) 50vw, (max-width: 1279px) 33vw, 25vw"
+            unoptimized
             className="object-cover"
           />
         ) : (

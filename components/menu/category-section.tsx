@@ -13,13 +13,7 @@ export function CategorySection({ category }: CategorySectionProps) {
       <div className="flex items-center gap-4">
         {category.image_url ? (
           <div className="relative h-16 w-16 overflow-hidden rounded-[22px] bg-coffee-100 shadow-sm">
-            <Image
-              src={category.image_url}
-              alt=""
-              fill
-              className="object-cover"
-              sizes="64px"
-            />
+            <Image src={category.image_url} alt="" fill className="object-cover" sizes="64px" unoptimized />
           </div>
         ) : null}
         <div className="space-y-2">
