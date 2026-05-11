@@ -64,10 +64,24 @@ export function ImageUploadField({
       const previousPath = getStoragePathFromPublicUrl(value);
 
       if (previousPath && previousPath !== normalizedStoragePath) {
-        await supabase.storage.from(STORAGE_BUCKET).remove([previousPath]);
+        const { error: removePreviousError } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .remove([previousPath]);
+
+        if (removePreviousError) {
+          setError(`Önceki görsel silinemedi: ${removePreviousError.message}`);
+          return;
+        }
       }
 
-      await supabase.storage.from(STORAGE_BUCKET).remove([normalizedStoragePath]);
+      const { error: removeCurrentError } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .remove([normalizedStoragePath]);
+
+      if (removeCurrentError) {
+        setError(`Mevcut görsel temizlenemedi: ${removeCurrentError.message}`);
+        return;
+      }
 
       const { error: uploadError } = await supabase.storage
         .from(STORAGE_BUCKET)
@@ -79,7 +93,7 @@ export function ImageUploadField({
 
       if (uploadError) {
         setError(
-          `Görsel yüklenemedi. Supabase Storage'da "${STORAGE_BUCKET}" bucket'ının açık olduğundan emin olun.`
+          `Görsel yüklenemedi: ${uploadError.message}`
         );
         return;
       }
@@ -100,7 +114,14 @@ export function ImageUploadField({
       ) as string[];
 
       if (pathsToRemove.length > 0) {
-        await supabase.storage.from(STORAGE_BUCKET).remove(pathsToRemove);
+        const { error: removeError } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .remove(pathsToRemove);
+
+        if (removeError) {
+          setError(`Görsel kaldırılamadı: ${removeError.message}`);
+          return;
+        }
       }
 
       setValue("");
