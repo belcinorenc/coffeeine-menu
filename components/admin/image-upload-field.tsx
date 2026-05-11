@@ -7,9 +7,9 @@ import { useId, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { resolveMediaUrl, STORAGE_BUCKET, getStorageObjectPath } from "@/lib/media";
 import { createClient } from "@/lib/supabase/client";
 
-const STORAGE_BUCKET = "coffeeine-media";
 const MAX_IMAGE_SIZE_BYTES = 1024 * 1024;
 
 interface ImageUploadFieldProps {
@@ -32,19 +32,9 @@ export function ImageUploadField({
   const [value, setValue] = useState(defaultValue ?? "");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
-  const canPreview = value.startsWith("http://") || value.startsWith("https://");
+  const previewUrl = resolveMediaUrl(value);
+  const canPreview = Boolean(previewUrl);
   const normalizedStoragePath = `${folder}/${storagePath.replace(/^\/+/, "").replace(/\.[^.]+$/, "")}.webp`;
-
-  function getStoragePathFromPublicUrl(url: string) {
-    const marker = `/storage/v1/object/public/${STORAGE_BUCKET}/`;
-    const markerIndex = url.indexOf(marker);
-
-    if (markerIndex < 0) {
-      return null;
-    }
-
-    return decodeURIComponent(url.slice(markerIndex + marker.length).split("?")[0]);
-  }
 
   function uploadImage(file: File) {
     setError("");
@@ -61,7 +51,7 @@ export function ImageUploadField({
 
     startTransition(async () => {
       const supabase = createClient();
-      const previousPath = getStoragePathFromPublicUrl(value);
+      const previousPath = getStorageObjectPath(value);
 
       if (previousPath && previousPath !== normalizedStoragePath) {
         await supabase.storage.from(STORAGE_BUCKET).remove([previousPath]);
@@ -84,8 +74,7 @@ export function ImageUploadField({
         return;
       }
 
-      const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(normalizedStoragePath);
-      setValue(`${data.publicUrl}?v=${Date.now()}`);
+      setValue(normalizedStoragePath);
     });
   }
 
@@ -94,7 +83,7 @@ export function ImageUploadField({
 
     startTransition(async () => {
       const supabase = createClient();
-      const currentPath = getStoragePathFromPublicUrl(value);
+      const currentPath = getStorageObjectPath(value);
       const pathsToRemove = Array.from(
         new Set([currentPath, normalizedStoragePath].filter(Boolean))
       ) as string[];
@@ -113,7 +102,7 @@ export function ImageUploadField({
       <div className="grid gap-3 rounded-[24px] border border-coffee-200 bg-coffee-50/50 p-3 sm:grid-cols-[96px_1fr]">
         <div className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-2xl bg-white text-coffee-700 sm:w-24">
           {canPreview ? (
-            <Image src={value} alt="" fill className="object-cover" sizes="96px" />
+            <Image src={previewUrl!} alt="" fill className="object-cover" sizes="96px" />
           ) : (
             <ImagePlus className="h-7 w-7" />
           )}

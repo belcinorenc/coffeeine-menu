@@ -46,7 +46,7 @@ function rethrowIfRedirectError(error: unknown) {
 const categorySchema = z.object({
   name: z.string().min(2),
   slug: z.string().min(2),
-  image_url: z.string().url().optional().or(z.literal("")),
+  image_url: z.string().trim().optional().or(z.literal("")),
   sort_order: z.coerce.number().int().min(1),
   is_active: z.boolean()
 });
@@ -57,7 +57,7 @@ const productSchema = z.object({
   description: z.string().optional(),
   product_options: z.string().optional(),
   price: z.coerce.number().min(0),
-  image_url: z.string().url().optional().or(z.literal("")),
+  image_url: z.string().trim().optional().or(z.literal("")),
   badge: z.string().optional(),
   is_available: z.boolean(),
   is_active: z.boolean(),
@@ -66,7 +66,7 @@ const productSchema = z.object({
 
 const settingsSchema = z.object({
   cafe_name: z.string().min(2),
-  logo_url: z.string().url().optional().or(z.literal("")),
+  logo_url: z.string().trim().optional().or(z.literal("")),
   hero_title: z.string().min(5),
   hero_subtitle: z.string().min(10),
   instagram_url: z.string().url().optional().or(z.literal("")),

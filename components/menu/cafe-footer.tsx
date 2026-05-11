@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Clock3, Instagram, MapPin, Phone } from "lucide-react";
 
+import { resolveMediaUrl } from "@/lib/media";
 import type { Settings } from "@/lib/types";
 
 interface CafeFooterProps {
@@ -8,6 +9,7 @@ interface CafeFooterProps {
 }
 
 export function CafeFooter({ settings }: CafeFooterProps) {
+  const logoUrl = resolveMediaUrl(settings.logo_url);
   const mapUrl = settings.address
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`
     : "";
@@ -19,9 +21,9 @@ export function CafeFooter({ settings }: CafeFooterProps) {
         <div className="max-w-md space-y-3">
           <div className="flex items-center gap-3">
             <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-coffee-700">
-              {settings.logo_url ? (
+              {logoUrl ? (
                 <Image
-                  src={settings.logo_url}
+                  src={logoUrl}
                   alt={settings.cafe_name}
                   fill
                   sizes="48px"

@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+import { resolveMediaUrl } from "@/lib/media";
 import type { Settings } from "@/lib/types";
 
 interface HeroProps {
@@ -7,6 +8,8 @@ interface HeroProps {
 }
 
 export function Hero({ settings }: HeroProps) {
+  const logoUrl = resolveMediaUrl(settings.logo_url);
+
   return (
     <section className="overflow-hidden rounded-[32px] border border-white/50 bg-coffee-glow px-5 py-4 shadow-glow sm:px-6">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
@@ -15,9 +18,9 @@ export function Hero({ settings }: HeroProps) {
         </div>
 
         <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-white/70 bg-white/95 shadow-lg shadow-coffee-900/10 sm:h-24 sm:w-24">
-          {settings.logo_url ? (
+          {logoUrl ? (
             <Image
-              src={settings.logo_url}
+              src={logoUrl}
               alt={settings.cafe_name}
               fill
               sizes="(max-width: 640px) 80px, 96px"

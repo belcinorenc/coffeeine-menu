@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Coffee, FolderKanban, LayoutDashboard, Settings2 } from "lucide-react";
 
+import { resolveMediaUrl } from "@/lib/media";
 import { SignOutButton } from "@/components/admin/sign-out-button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -28,14 +29,16 @@ export function AdminShell({
   cafeName = "Coffeeine",
   logoUrl
 }: AdminShellProps) {
+  const resolvedLogoUrl = resolveMediaUrl(logoUrl);
+
   return (
     <div className="mx-auto grid min-h-screen max-w-7xl gap-6 px-4 py-4 sm:px-6 sm:py-6 lg:grid-cols-[260px_minmax(0,1fr)]">
       <aside className="space-y-4">
         <Card className="p-4">
           <div className="flex items-center gap-3">
             <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-coffee-800 font-serif text-xl text-white">
-              {logoUrl ? (
-                <Image src={logoUrl} alt={cafeName} fill className="object-cover" sizes="48px" />
+              {resolvedLogoUrl ? (
+                <Image src={resolvedLogoUrl} alt={cafeName} fill className="object-cover" sizes="48px" />
               ) : (
                 cafeName.slice(0, 1)
               )}
